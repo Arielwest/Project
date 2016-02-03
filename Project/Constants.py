@@ -1,0 +1,10 @@
+MODULES_TO_INSTALL = ["flask", "wmi", "pywin32", "scapy"]
+SERVER_PORT = 6070
+BROADCAST_PORT = 6071
+SERVER_SEARCH_MESSAGE = "Where is the network management server?"
+BUFFER_SIZE = 1024
+IP_REGULAR_EXPRESSION = r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+FLASK_URL = "http://127.0.0.1:5000"
+DATABASE_NAME = r"Database.db"
+MAC_LENGTH = 12
+WAKE_ON_LAN_PORT = 7
