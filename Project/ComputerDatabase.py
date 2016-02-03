@@ -23,44 +23,30 @@ class ComputerDatabase:
 
     def __init__(self):  # Constructor
         self.database = sqlite3.connect(DATABASE_NAME)
+        self.cursor = self.database.cursor()
         # self.create_classification_table()
-        self.create_clients_table()
+        #self.create_clients_table()
         # self.create_process_table()
 
 #region ---- Table creating functions ----
 
     def create_clients_table(self):
-        self.database.execute('''CREATE TABLE if not exists Computers
-        (MAC          STRING   NOT NULL,
-        IP            STRING   NOT NULL,
-        computer_name STRING   NOT NULL);''')
-
-    """"
-    def create_process_table(self):
-        self.database.execute('''CREATE TABLE Processes
-        (Process_ID INT PRIMARY KET NOT NULL,
-        Process_name STRING NOT NULL,
-        Process_size INT NOT NULL);''')
-
-    def create_classification_table(self):
-        self.database.execute('''CREATE TABLE Classification
-        (Classification_ID INT PRIMARY KEY NOT NULL,
-        Client_name STRING NOT NULL,
-        Process_ID INT NOT NULL,
-        Classification INT NOT NULL,
-        Notes STRING);''')
-    """
+        self.cursor.execute('''CREATE TABLE if not exists Computers
+        (MAC          STRING,
+        IP            STRING,
+        computer_name STRING);''')
+        self.database.commit()
 
     def add_row(self, computer):
-        self.database.execute("INSERT INTO Computers (MAC, IP, computer_name) VALUES ('%s','%s','%s')" %(computer.mac, computer.ip, computer.computer_name))
-
-    def is_exist(self, computer):
-        pass
+        self.cursor.execute("INSERT INTO Computers VALUES('%s','%s','%s')" % (computer.mac, computer.ip, computer.computer_name))
+        self.database.commit()
 
     def read(self):
-        answer = self.database.execute("SELECT * FROM Computers;")
         computers = []
-        for row in answer:
+        self.cursor.execute("SELECT * FROM Computers;")
+        self.database.commit()
+        rows = self.cursor.fetchall()
+        for row in rows:
             computers.append(Computer(row[0], row[1], row[2]))
         return computers
 
@@ -72,7 +58,7 @@ def main():
     db = ComputerDatabase()
     data = db.read()
     for computer in data:
-        print computer
+        print str(computer)
 
 if __name__ == "__main__":
     main()
