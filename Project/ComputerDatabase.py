@@ -43,6 +43,8 @@ class ComputerDatabase:
                 active = 0
             self.cursor.execute("INSERT INTO Computers VALUES('%s','%s','%s')" % (computer.mac, computer.ip, str(computer.active)))
             self.database.commit()
+        else:
+            raise ValueError
 
     def read(self):
         computers = []
@@ -53,6 +55,13 @@ class ComputerDatabase:
             computers.append(Computer(row[0], row[1], row[2] == "True"))
         return computers
 
+    def update_state(self, computer):
+        if isinstance(computer, Computer):
+            active = str(computer.active)
+            self.cursor.execute("UPDATE Computers SET active='%s' WHERE MAC='%s'" % (active, computer.mac))
+            self.database.commit()
+        else:
+            raise ValueError
 
 #endregion
 
