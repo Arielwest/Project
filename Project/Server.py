@@ -13,6 +13,7 @@ class Server(object):
         self.__main_socket = socket.socket()
         self.__broadcast_listen_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.__database = ComputerDatabase()
+        self.__announce_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.gui = None
 
     def start(self):
@@ -24,24 +25,23 @@ class Server(object):
                 self.__database.add_row(computer)
                 database = self.__database.read()
         self.__print("Database updated.")
-        network_scan_thread = Thread(target=self.__network_scan, args=(self,))
-        network_scan_thread.start()
+        network_scan_thread = Thread(target=self.__network_scan)
         network_scan_thread.setDaemon(True)
-        broadcast_listen_thread = Thread(target=self.__broadcast_listen, args=(self,))
-        broadcast_listen_thread.start()
-        broadcast_listen_thread.setDaemon(True)
+        network_scan_thread.start()
+        broadcast_announce_thread = Thread(target=self.__broadcast_announce)
+        broadcast_announce_thread.setDaemon(True)
+        broadcast_announce_thread.start()
         self.__run()
 
     def __run(self):
         self.__print("Server started!")
-        pass
+        exit()
 
-    def __broadcast_listen(self):
-        self.__broadcast_listen_socket.bind(('0.0.0.0', BROADCAST_PORT))
+    def __broadcast_announce(self):
+        self.__announce_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         while True:
-            message, address = self.__broadcast_listen_socket.recvfrom(BUFFER_SIZE)
-            if message == SERVER_SEARCH_MESSAGE:
-                self.__broadcast_listen_socket.sendto(self.__address, address)
+            self.__announce_socket.sendto(SERVER_ANNOUNCE_MESSAGE, ("<broadcast>", BROADCAST_PORT))
+            sleep(ANNOUNCE_SLEEP_TIME)
 
     def __network_scan(self):
         while True:

@@ -25,7 +25,7 @@ class ComputerDatabase:
         self.database = sqlite3.connect(DATABASE_NAME)
         self.cursor = self.database.cursor()
         # self.create_classification_table()
-        #self.create_clients_table()
+        self.create_clients_table()
         # self.create_process_table()
 
 #region ---- Table creating functions ----
