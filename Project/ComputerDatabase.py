@@ -24,22 +24,25 @@ class ComputerDatabase:
     def __init__(self):  # Constructor
         self.database = sqlite3.connect(DATABASE_NAME)
         self.cursor = self.database.cursor()
-        # self.create_classification_table()
         self.create_clients_table()
-        # self.create_process_table()
 
 #region ---- Table creating functions ----
 
     def create_clients_table(self):
         self.cursor.execute('''CREATE TABLE if not exists Computers
-        (MAC          STRING,
-        IP            STRING,
-        computer_name STRING);''')
+        (MAC   STRING,
+        IP     STRING,
+        active STRING);''')
         self.database.commit()
 
     def add_row(self, computer):
-        self.cursor.execute("INSERT INTO Computers VALUES('%s','%s','%s')" % (computer.mac, computer.ip, computer.computer_name))
-        self.database.commit()
+        if isinstance(computer, Computer):
+            if computer.active:
+                active = 1
+            else:
+                active = 0
+            self.cursor.execute("INSERT INTO Computers VALUES('%s','%s','%s')" % (computer.mac, computer.ip, str(computer.active)))
+            self.database.commit()
 
     def read(self):
         computers = []
@@ -47,7 +50,7 @@ class ComputerDatabase:
         self.database.commit()
         rows = self.cursor.fetchall()
         for row in rows:
-            computers.append(Computer(row[0], row[1], row[2]))
+            computers.append(Computer(row[0], row[1], row[2] == "True"))
         return computers
 
 

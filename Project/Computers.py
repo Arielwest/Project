@@ -1,8 +1,8 @@
 class Computer(object):
-    def __init__(self, mac, ip, computer_name=""):
+    def __init__(self, mac, ip, active=True):
         self.mac = mac
         self.ip = ip
-        self.computer_name = computer_name
+        self.active = active
 
     def __eq__(self, other):
         if isinstance(other, Computer):
@@ -11,7 +11,15 @@ class Computer(object):
             return False
 
     def __repr__(self):
-        return self.mac + " " * 4 + self.ip + " " * 4 + self.computer_name
+        if self.active:
+            status = "online"
+        else:
+            status = "offline"
+        return self.mac + " " * 4 + self.ip + " " * 4 + status
 
     def __str__(self):
-        return self.mac + " " * 4 + self.ip + " " * 4 + self.computer_name
+        if self.active:
+            status = "online"
+        else:
+            status = "offline"
+        return self.mac + " " * 4 + self.ip + " " * 4 + status

@@ -35,7 +35,6 @@ class Server(object):
 
     def __run(self):
         self.__print("Server started!")
-        exit()
 
     def __broadcast_announce(self):
         self.__announce_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
