@@ -33,8 +33,8 @@ def shutdown(host=None, msg=None, timeout=0, force=1, reboot=0):
 
 
 def main():
-    wake_on_lan("24:BE:05:03:39:C0")
-    # shutdown("34v7-11", "This computer will be shut down by the network manager", 5)
+    # wake_on_lan("24:BE:05:03:39:C0")
+    shutdown("OLGY-PC", "This computer will be shut down by the network manager", 5)
 
 if __name__ == "__main__":
     main()

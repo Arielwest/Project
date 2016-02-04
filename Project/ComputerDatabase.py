@@ -1,22 +1,6 @@
-#region ----------   ABOUT   -----------------------------
-"""
-##################################################################
-# Created By: Liel Moalem                                        #
-# Date: 25/01/2016                                               #
-# Name: CameraStatus                                             #
-# Version: 1.0                                                   #
-# Windows Tested Versions: Win 7 64-bit                          #
-# Python Tested Versions: 2.7 64-bit                             #
-# Python Environment  : PyCharm                                  #
-##################################################################
-"""
-#endregion
-
-#region ---- Imports ----
 import sqlite3
 from Constants import *
 from Computers import *
-#endregion
 
 
 class ComputerDatabase:
@@ -25,8 +9,6 @@ class ComputerDatabase:
         self.database = sqlite3.connect(DATABASE_NAME)
         self.cursor = self.database.cursor()
         self.create_clients_table()
-
-#region ---- Table creating functions ----
 
     def create_clients_table(self):
         self.cursor.execute('''CREATE TABLE if not exists Computers
@@ -37,10 +19,6 @@ class ComputerDatabase:
 
     def add_row(self, computer):
         if isinstance(computer, Computer):
-            if computer.active:
-                active = 1
-            else:
-                active = 0
             self.cursor.execute("INSERT INTO Computers VALUES('%s','%s','%s')" % (computer.mac, computer.ip, str(computer.active)))
             self.database.commit()
         else:
@@ -62,8 +40,6 @@ class ComputerDatabase:
             self.database.commit()
         else:
             raise ValueError
-
-#endregion
 
 
 def main():

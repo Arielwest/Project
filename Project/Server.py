@@ -21,15 +21,14 @@ class Server(object):
         current_arp = NetMap.map()
         database = self.__database.read()
         for computer in database:
-            if not computer in current_arp:
+            if computer not in current_arp:
                 computer.active = False
                 self.__database.update_state(computer)
         for computer in current_arp:
-            if not computer in database:
+            if computer not in database:
                 self.__database.add_row(computer)
                 database = self.__database.read()
         self.__print("Database updated.")
-        exit()
         network_scan_thread = Thread(target=self.__network_scan)
         network_scan_thread.setDaemon(True)
         network_scan_thread.start()
@@ -53,7 +52,7 @@ class Server(object):
             current_arp = NetMap.map()
             database = self.__database.read()
             for computer in current_arp:
-                if not computer in database:
+                if computer not in database:
                     self.__database.add_row(computer)
                     database = self.__database.read()
 

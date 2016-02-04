@@ -1,3 +1,5 @@
+from Constants import *
+import re
 import subprocess
 import wmi
 from scapy.all import *
@@ -39,7 +41,7 @@ class NetMap(object):
         result = []
         conf.verb = 0
         my_ip, gateway_ip, my_mac, subnet_mask = NetMap.__get_network_attributes()
-        #print my_ip, gateway_ip, my_mac, subnet_mask
+        # print my_ip, gateway_ip, my_mac, subnet_mask
         final_gateway = NetMap.__get_final_gateway(gateway_ip, subnet_mask)
         pkt = Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=final_gateway)
         answered, unanswered = srp(pkt, timeout=10)
@@ -82,9 +84,17 @@ class NetMap(object):
         wmi_obj = wmi.WMI()
         sql = "select MACAddress, IPAddress, DefaultIPGateway, IPSubnet from Win32_NetworkAdapterConfiguration where IPEnabled=TRUE"
         wmi_out = wmi_obj.query(sql)
-        my_ip, gateway_ip, my_mac = wmi_out[0].IPAddress[0], wmi_out[0].DefaultIPGateway[0], wmi_out[0].MACAddress
-        subnet_mask = wmi_out[0].IPSubnet[0]
+        index = 0
+        for result in wmi_out:
+            if is_ip(result.IPAddress[0]):
+                index = wmi_out.index(result)
+        my_ip, gateway_ip, my_mac = wmi_out[index].IPAddress[0], wmi_out[index].DefaultIPGateway[0], wmi_out[index].MACAddress
+        subnet_mask = wmi_out[index].IPSubnet[0]
         return my_ip, gateway_ip, my_mac, subnet_mask
+
+
+def is_ip(ip):
+    return re.match(IP_REGULAR_EXPRESSION, ip)
 
 
 def main():
