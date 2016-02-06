@@ -7,14 +7,9 @@ import sys
 app = Flask(__name__)
 
 
-@app.route("/login")
+@app.route("/")
 def login():
     return "Hello"
-
-
-@app.route("/login/<name>")
-def name_login(name):
-    return "Hello " + name
 
 
 def main():

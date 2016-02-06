@@ -1,4 +1,4 @@
-MODULES_TO_INSTALL = ["flask", "wmi", "pywin32", "scapy"]
+MODULES_TO_INSTALL = ["flask", "wmi", "pywin32", "scapy", "ctypes"]
 SERVER_PORT = 6070
 BROADCAST_PORT = 6071
 SERVER_ANNOUNCE_MESSAGE = "I'm the network manager server."
@@ -10,6 +10,5 @@ MAC_LENGTH = 12
 WAKE_ON_LAN_PORT = 7
 NET_SCAN_WAIT = 60
 ANNOUNCE_SLEEP_TIME = 10
-WMI_OBJECT = "winmgmts:"
-PROCESS = "win32_process"
 PROCESS_ENUMERATE_SLEEP = 60
+EMPTY_PATH = '?'

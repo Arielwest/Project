@@ -1,6 +1,6 @@
 import sqlite3
 from Constants import *
-from Computers import *
+from ComputerObjects import *
 
 
 class ComputerDatabase:

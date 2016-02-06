@@ -3,7 +3,7 @@ import re
 import subprocess
 import wmi
 from scapy.all import *
-from Computers import *
+from ComputerObjects import *
 
 
 class NetMap(object):
