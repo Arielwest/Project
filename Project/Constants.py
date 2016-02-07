@@ -1,4 +1,4 @@
-MODULES_TO_INSTALL = ["flask", "wmi", "pywin32", "scapy", "ctypes"]
+MODULES_TO_INSTALL = ["flask", "wmi", "pywin32", "scapy"]
 SERVER_PORT = 6070
 BROADCAST_PORT = 6071
 SERVER_ANNOUNCE_MESSAGE = "I'm the network manager server."

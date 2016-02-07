@@ -9,7 +9,7 @@ from win32file import CreateDirectory, DeleteFile, RemoveDirectory
 from win32process import CreateProcess, STARTUPINFO, TerminateProcess
 from win32api import OpenProcess
 from win32api import GetLogicalDriveStrings
-from win32con import PROCESS_ALL_ACCESS
+from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS
 import pickle
 import pythoncom
 from os import listdir
@@ -23,12 +23,13 @@ class Client(object):
         self.__mac = get_mac()
         self.__name = socket.gethostname()
         self.__processes = []
+        self.__update_processes()
         self.__processes_lock = Lock()
         self.handle_functions = {
             "CreateFile": self.__create_file,
             "DeleteFile": self.__delete_file,
             "CreateProcess": self.__create_process,
-            "Kill": self.__kill,
+            "TerminateProcess": self.__terminate_process,
             "UpdateProcesses": self.__send_processes,
             "FilesIn": self.__files_in
         }
@@ -44,11 +45,11 @@ class Client(object):
                     open(directory, 'w')
                 else:
                     CreateDirectory(directory, None)
-                result = "Success"
+                result = "Created " + directory
             except:
-                result = "ERROR"
+                result = "ERROR: internal error"
         else:
-            result = "poop"
+            result = "ERROR: no directory " + path
         return result
 
     def __delete_file(self, path):
@@ -59,39 +60,38 @@ class Client(object):
                 else:
                     RemoveDirectory(path)
                 windll.shell32.SHEmptyRecycleBinA(None, None, 1 or 2 or 4)
-                result = "Success"
+                result = "Deleted " + path
             except:
-                result = "ERROR"
+                result = "ERROR: internal error"
         else:
-            result = "ERROR"
+            result = "ERROR: no directory " + path
         return result
 
     def __create_process(self, exe_path):
         try:
-            CreateProcess(exe_path, None, None, None, False, ?, None, None, STARTUPINFO()) # HELP
-            result = "sucess"
+            CreateProcess(exe_path, None, None, None, 0, NORMAL_PRIORITY_CLASS, None, None, None)
+            result = "Opened " + exe_path
         except:
-            result = "ERROR"
+            result = "ERROR: internal error"
         return result
 
-    def __kill(self, pid):
+    def __terminate_process(self, pid):
         pid = int(pid)
-        process_exists = True
+        process_exists = False
         for process in self.__processes:
             if process.pid == pid:
                 process_exists = True
                 break
         if process_exists:
             try:
-                handle = OpenProcess(PROCESS_ALL_ACCESS, False, pid)
-                TerminateProcess(handle, '0') # HELP
-                result = "Success"
+                handle = OpenProcess(PROCESS_TERMINATE, False, pid)
+                TerminateProcess(handle, -1)
+                result = str(pid) + " terminated"
             except:
-                result = "Error"
+                result = "ERROR: internal error"
         else:
-            result = "poop"
+            result = "ERROR: no process " + str(pid)
         return result
-
 
     def __send_processes(self):
         result = []
@@ -104,8 +104,10 @@ class Client(object):
     def __files_in(self, path):
         if path == EMPTY_PATH:
             files = ' '.join(GetLogicalDriveStrings().split('\000')[:-1])
-        else:
+        elif exists(path):
             files = ' '.join([f for f in listdir(path)])
+        else:
+            files = "ERROR: no directory " + path
         return files
 
     def __print(self, data):
@@ -157,6 +159,8 @@ class Client(object):
                 except:
                     result = "ERROR"
                 self.__return_answer(result)
+            else:
+                break
 
 
     def __get_data(self):

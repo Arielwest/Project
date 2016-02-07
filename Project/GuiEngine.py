@@ -1,5 +1,5 @@
 from Constants import *
-from flask import Flask
+from flask import Flask, render_template, request
 from threading import Thread
 import webbrowser
 import sys
@@ -7,9 +7,9 @@ import sys
 app = Flask(__name__)
 
 
-@app.route("/")
-def login():
-    return "Hello"
+@app.route('/', methods=['GET', 'POST'])
+def show_main_form():
+    return "Nothing, yet"
 
 
 def main():
