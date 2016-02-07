@@ -1,20 +1,24 @@
 from Constants import *
-import socket
-from threading import Thread
+from socket import socket, gethostbyaddr
+from threading import Thread, Lock
 from ComputerDatabase import *
 from NetMap import NetMap
 from time import sleep
+import pythoncom
+from select import select
 import subprocess
 
 
 class Server(object):
     def __init__(self):
-        self.__address = socket.gethostbyname(socket.gethostname())
-        self.__main_socket = socket.socket()
-        self.__broadcast_listen_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__address = gethostbyname(gethostname())
+        self.__main_socket = socket()
+        self.__broadcast_listen_socket = socket(AF_INET, SOCK_DGRAM)
         self.__database = ComputerDatabase()
-        self.__announce_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__database_lock = Lock()
+        self.__announce_socket = socket(AF_INET, SOCK_DGRAM)
         self.gui = None
+        self._connected_clients = []
 
     def start(self):
         self.__print("Updating database...")
@@ -39,9 +43,17 @@ class Server(object):
 
     def __run(self):
         self.__print("Server started!")
+        while True:
+            to_read, to_write, error = select([self.__main_socket], [], [])
+            for sock in to_read:
+                if sock is self.__main_socket:
+                    client_socket, client_address = self.__main_socket.accept()
+                    for computer in self.__database.read():
+                        if computer.ip == client_address[0]:
+                            self._connected_clients.append(client_socket)
 
     def __broadcast_announce(self):
-        self.__announce_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        self.__announce_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
         while True:
             self.__announce_socket.sendto(SERVER_ANNOUNCE_MESSAGE, ("<broadcast>", BROADCAST_PORT))
             sleep(ANNOUNCE_SLEEP_TIME)
@@ -49,15 +61,26 @@ class Server(object):
     def __network_scan(self):
         while True:
             sleep(NET_SCAN_WAIT)
+            pythoncom.CoInitialize()
             current_arp = NetMap.map()
-            database = self.__database.read()
+            pythoncom.CoUninitialize()
+            database = ComputerDatabase()
+            data = database.read()
             for computer in current_arp:
-                if computer not in database:
-                    self.__database.add_row(computer)
-                    database = self.__database.read()
+                if computer not in data:
+                    database.add_row(computer)
+                    data = database.read()
+            database.close()
 
     def __print(self, data):
         print data
+
+
+class Client(object):
+    def __init__(self, sock, computer):
+        self.socket = sock
+        self.__computer = computer
+        self.name =
 
 
 def main():

@@ -23,8 +23,8 @@ class Client(object):
         self.__mac = get_mac()
         self.__name = socket.gethostname()
         self.__processes = []
-        self.__update_processes()
         self.__processes_lock = Lock()
+        self.__update_processes()
         self.handle_functions = {
             "CreateFile": self.__create_file,
             "DeleteFile": self.__delete_file,
@@ -115,7 +115,7 @@ class Client(object):
 
     def start(self):
         self.__print("connecting")
-        is_server = True
+        is_server = self.__find_server()
         if is_server:
             print "connected to server."
             update_thread = Thread(target=self.__update_processes_routine)

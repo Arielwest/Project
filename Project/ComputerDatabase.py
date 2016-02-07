@@ -41,6 +41,10 @@ class ComputerDatabase:
         else:
             raise ValueError
 
+    def close(self):
+        self.cursor.close()
+        self.database.close()
+
 
 def main():
     db = ComputerDatabase()
