@@ -35,6 +35,9 @@ class Client(object):
         }
 
     def __create_file(self, path, name):
+        """
+        Creates a new file in directory
+        """
         if exists(path):
             directory = path
             if not directory.endswith('\\'):
@@ -53,6 +56,9 @@ class Client(object):
         return result
 
     def __delete_file(self, path):
+        """
+        Deltes the file in path
+        """
         if exists(path):
             try:
                 if len(path.split('.')) >= 2:
@@ -68,6 +74,9 @@ class Client(object):
         return result
 
     def __create_process(self, exe_path):
+        """
+        Opens a new process
+        """
         try:
             CreateProcess(exe_path, None, None, None, 0, NORMAL_PRIORITY_CLASS, None, None, None)
             result = "Opened " + exe_path
@@ -76,6 +85,9 @@ class Client(object):
         return result
 
     def __terminate_process(self, pid):
+        """
+        kill a process
+        """
         pid = int(pid)
         process_exists = False
         for process in self.__processes:
@@ -94,6 +106,9 @@ class Client(object):
         return result
 
     def __send_processes(self):
+        """
+        Creates a list of all processes
+        """
         result = []
         self.__update_processes()
         self.__processes_lock.acquire()
@@ -102,6 +117,9 @@ class Client(object):
         return pickle.dumps(result)
 
     def __files_in(self, path):
+        """
+        Returns whats is inside that file
+        """
         if path == EMPTY_PATH:
             files = ' '.join(GetLogicalDriveStrings().split('\000')[:-1])
         elif exists(path):
@@ -114,6 +132,9 @@ class Client(object):
         print data
 
     def start(self):
+        """
+        starts the client program
+        """
         self.__print("connecting")
         is_server = self.__find_server()
         if is_server:
@@ -126,6 +147,9 @@ class Client(object):
             print "server not found."
 
     def __find_server(self):
+        """
+        Looking for server in the network. if found returns True else False
+        """
         search_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         search_socket.settimeout(ANNOUNCE_SLEEP_TIME)
         search_socket.bind(("0.0.0.0", BROADCAST_PORT))
@@ -142,6 +166,9 @@ class Client(object):
             return False
 
     def __run(self):
+        """
+        The actual main code of the client
+        """
         while True:
             data = self.__get_data()
             if data != "":
@@ -165,6 +192,9 @@ class Client(object):
 
     def __get_data(self):
         """
+        Relieves the requests from the server
+        """
+        """
         to_read, to_write, error = select([self.__socket], [self.__socket], [])
         if self.__socket in to_read:
             data = self.__socket.recv(BUFFER_SIZE)
@@ -178,6 +208,9 @@ class Client(object):
 
     def __return_answer(self, data):
         """
+        sends back the result
+        """
+        """
         to_send = [data[i:i + BUFFER_SIZE] for i in xrange(0, len(data), BUFFER_SIZE)]
         self.__socket.send(str(len(to_send)))
         for part in to_send:
@@ -186,6 +219,9 @@ class Client(object):
         print data
 
     def __update_processes_routine(self):
+        """
+        This is run in a thread, activates update_processes any PROCESS_ENUMERATE_SLEEP seconds
+        """
         while True:
             pythoncom.CoInitialize()
             self.__update_processes()
@@ -193,6 +229,9 @@ class Client(object):
             sleep(PROCESS_ENUMERATE_SLEEP)
 
     def __update_processes(self):
+        """
+        Enumerates all running processes
+        """
         wmi = WMI()
         self.__processes_lock.acquire()
         self.__processes = []
@@ -200,7 +239,6 @@ class Client(object):
             process_object = Process(process.Name, process.ProcessID, process.ParentProcessID)
             self.__processes.append(process_object)
         self.__processes_lock.release()
-
 
 
 def main():

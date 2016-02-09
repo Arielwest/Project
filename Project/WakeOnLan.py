@@ -7,6 +7,9 @@ import win32security
 
 
 def wake_on_lan(mac_address):
+    """
+    Wakes a computer
+    """
     if len(mac_address) == MAC_LENGTH + 5:
         separator = mac_address[2]
         mac_address = mac_address.replace(separator, '')
@@ -24,6 +27,9 @@ def wake_on_lan(mac_address):
 
 
 def shutdown(host=None, msg=None, timeout=0, force=1, reboot=0):
+    """
+    Shutdown a computer
+    """
     privilege1 = win32security.LookupPrivilegeValue(host, win32con.SE_SHUTDOWN_NAME)
     privilege2 = win32security.LookupPrivilegeValue(host, win32con.SE_REMOTE_SHUTDOWN_NAME)
     new_state = [(privilege1, win32con.SE_PRIVILEGE_ENABLED), (privilege2, win32con.SE_PRIVILEGE_ENABLED)]

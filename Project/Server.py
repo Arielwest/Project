@@ -1,5 +1,5 @@
 from Constants import *
-from socket import socket, gethostbyaddr
+from socket import socket, gethostbyaddr, gethostbyname, gethostname, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST
 from threading import Thread, Lock
 from ComputerDatabase import *
 from NetMap import NetMap
@@ -13,7 +13,6 @@ class Server(object):
     def __init__(self):
         self.__address = gethostbyname(gethostname())
         self.__main_socket = socket()
-        self.__broadcast_listen_socket = socket(AF_INET, SOCK_DGRAM)
         self.__database = ComputerDatabase()
         self.__database_lock = Lock()
         self.__announce_socket = socket(AF_INET, SOCK_DGRAM)
@@ -21,6 +20,9 @@ class Server(object):
         self._connected_clients = []
 
     def start(self):
+        """
+        Starts the server
+        """
         self.__print("Updating database...")
         current_arp = NetMap.map()
         database = self.__database.read()
@@ -42,6 +44,9 @@ class Server(object):
         self.__run()
 
     def __run(self):
+        """
+        Actual main code of the server
+        """
         self.__print("Server started!")
         while True:
             to_read, to_write, error = select([self.__main_socket], [], [])
@@ -53,12 +58,18 @@ class Server(object):
                             self._connected_clients.append(client_socket)
 
     def __broadcast_announce(self):
+        """
+        Runs in a thread. Announces the server's existence in the network
+        """
         self.__announce_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
         while True:
             self.__announce_socket.sendto(SERVER_ANNOUNCE_MESSAGE, ("<broadcast>", BROADCAST_PORT))
             sleep(ANNOUNCE_SLEEP_TIME)
 
     def __network_scan(self):
+        """
+        Scans the network
+        """
         while True:
             sleep(NET_SCAN_WAIT)
             pythoncom.CoInitialize()

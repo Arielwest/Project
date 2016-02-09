@@ -10,6 +10,9 @@ class NetMap(object):
 
     @staticmethod
     def map():
+        """
+        Main mapping function
+        """
         list1 = NetMap.__map_with_cmd()
         list2 = NetMap.__map_with_scapy()
         result_list = NetMap.__combine_tables(list1, list2)
@@ -17,12 +20,20 @@ class NetMap(object):
 
     @staticmethod
     def __combine_tables(list1, list2):
+        """
+        Combines two lists
+        """
         result_list = list(list1)
-        result_list += list(list2)
+        for computer in list2:
+            if computer not in result_list:
+                result_list.append(computer)
         return result_list
 
     @staticmethod
     def __map_with_cmd():
+        """
+        Returns the computer's arp table
+        """
         result = []
         pipe = subprocess.Popen(['arp', '-a'], stdout=subprocess.PIPE)
         for line in pipe.stdout.readlines()[3:]:
@@ -38,6 +49,9 @@ class NetMap(object):
 
     @staticmethod
     def __map_with_scapy():
+        """
+        makes its own arp table
+        """
         result = []
         conf.verb = 0
         my_ip, gateway_ip, my_mac, subnet_mask = NetMap.__get_network_attributes()
@@ -81,6 +95,9 @@ class NetMap(object):
 
     @staticmethod
     def __get_network_attributes():
+        """
+        returns the computer's network attributes
+        """
         wmi_obj = wmi.WMI()
         sql = "select MACAddress, IPAddress, DefaultIPGateway, IPSubnet from Win32_NetworkAdapterConfiguration where IPEnabled=TRUE"
         wmi_out = wmi_obj.query(sql)
