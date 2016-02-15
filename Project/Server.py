@@ -91,7 +91,7 @@ class Client(object):
     def __init__(self, sock, computer):
         self.socket = sock
         self.__computer = computer
-        self.name =
+        # self.name =
 
 
 def main():

@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+
+    <p>Computers:</p>
+    <hr />
+    <table  border="1" cellpadding="10">
+        <tr>
+           <th>IP</th>
+           <th>MAC</th>
+           <th>STATUS</th>
+        </tr>
+        {% for row in computers %}
+            <tr>
+              <td><input id="Text1" type="text" value="{{ row['IP'] }}" readonly />  </td>
+              <td>{{ row['MAC'] }}</td>
+              <td>{{ row['STATUS'] }}</td>
+              <td><input id="Button1" type="button" value="shutdown" /></td>
+            </tr>
+        {% endfor %}
+    </table>
+    
+</body>
+</html>

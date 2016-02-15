@@ -16,7 +16,7 @@ def wake_on_lan(mac_address):
     elif len(mac_address) != MAC_LENGTH:
         raise ValueError("Incorrect MAC address format.")
 
-    data = ''.join(['FFFFFFFFFFFF', mac_address * 20])
+    data = ''.join(['FFFFFFFFFFFF', mac_address * 16])
     send_data = ''
     for i in range(0, len(data), 2):
         send_data = ''.join([send_data, struct.pack('B', int(data[i: i + 2], 16))])
@@ -24,7 +24,7 @@ def wake_on_lan(mac_address):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     sock.sendto(send_data, ('<broadcast>', WAKE_ON_LAN_PORT))
-
+    print send_data
 
 def shutdown(host=None, msg=None, timeout=0, force=1, reboot=0):
     """
@@ -39,8 +39,8 @@ def shutdown(host=None, msg=None, timeout=0, force=1, reboot=0):
 
 
 def main():
-    # wake_on_lan("24:BE:05:03:39:C0")
-    shutdown("OLGY-PC", "This computer will be shut down by the network manager", 5)
+    wake_on_lan("10-60-4B-6B-6C-CF")
+    # shutdown("34V7-07", "This computer will be shut down by the network manager", 5)
 
 if __name__ == "__main__":
     main()

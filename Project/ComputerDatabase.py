@@ -35,7 +35,7 @@ class ComputerDatabase:
         Reads all the database and returns it as a list
         """
         computers = []
-        self.__cursor.execute("SELECT * FROM Computers;")
+        self.__cursor.execute("SELECT * FROM Computers ORDER BY active DESC")
         self.__database.commit()
         rows = self.__cursor.fetchall()
         for row in rows:
@@ -52,6 +52,16 @@ class ComputerDatabase:
             self.__database.commit()
         else:
             raise ValueError
+
+    def make_dictionary(self):
+        computers_dict = {"IP": [], "MAC": [], "STATUS": []}
+        computers = self.read()
+        for computer in computers:
+            computers_dict["IP"].append(computer.ip)
+            computers_dict["MAC"].append(computer.mac)
+            computers_dict["STATUS"].append( "online" if computer.active else "offline")
+        return computers_dict
+
 
     def close(self):
         """
