@@ -1,32 +1,32 @@
 from Constants import *
 from ComputerDatabase import ComputerDatabase
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 from itertools import izip
-from threading import Thread,Timer
 import webbrowser
-import sys
+
+import WakeOnLan
 
 app = Flask(__name__)
 
 
-@app.route('/')
-@app.route('/<name>')
-def show_main_form(name=None):
+@app.route('/', methods=['GET', 'POST'])
+def show_main_form():
+    if request.method == 'POST':
+        ip = request.form['Ip']
+        mac = request.form['Mac']
+        status = request.form['Status']
+        if status == "offline":
+            WakeOnLan.wake_on_lan(mac) #"10-60-4B-6B-6C-CF")
+        else:
+            WakeOnLan.shutdown(ip)
     computers_dict = ComputerDatabase().make_dictionary()
-    computers = [dict(IP = ip, MAC = mac, STATUS = state) for ip, mac, state in izip(computers_dict['IP'], computers_dict['MAC'], computers_dict['STATUS'])]
+    computers = [dict(IP=ip, MAC=mac, STATUS=state, INDEX=index) for ip, mac, state, index in izip(computers_dict['IP'], computers_dict['MAC'], computers_dict['STATUS'], computers_dict['INDEX'])]
     return render_template("MainPage.htm", computers=computers)
 
 
 def main():
-  #  app_thread = Thread(target=app.run)
-  #   app_thread.start()
-  #  app_thread.join()
-    #webbrowser.open(FLASK_URL, autoraise=True)
     webbrowser.open(FLASK_URL)
     app.run()
 
 if __name__ == "__main__":
-   main()
-
-
-
+    main()

@@ -54,12 +54,15 @@ class ComputerDatabase:
             raise ValueError
 
     def make_dictionary(self):
-        computers_dict = {"IP": [], "MAC": [], "STATUS": []}
+        computers_dict = {"IP": [], "MAC": [], "STATUS": [], "INDEX": []}
         computers = self.read()
+        i = 1
         for computer in computers:
             computers_dict["IP"].append(computer.ip)
             computers_dict["MAC"].append(computer.mac)
             computers_dict["STATUS"].append( "online" if computer.active else "offline")
+            computers_dict["INDEX"].append(i)
+            i += 1
         return computers_dict
 
 

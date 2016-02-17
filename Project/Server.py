@@ -19,6 +19,13 @@ class Server(object):
         self.gui = None
         self._connected_clients = []
 
+    def search(self, comp_list, ip):
+        for comp in comp_list:
+            if comp.ip == ip:
+                return True
+        return False
+
+
     def start(self):
         """
         Starts the server
@@ -26,12 +33,17 @@ class Server(object):
         self.__print("Updating database...")
         current_arp = NetMap.map()
         database = self.__database.read()
+        '''
+        Loop for updating the state of the computer
+        '''
         for computer in database:
-            if computer not in current_arp:
-                computer.active = False
-                self.__database.update_state(computer)
+            computer.active = self.search(current_arp, computer.ip)
+            self.__database.update_state(computer)
+        '''
+        Loop for updating the database
+        '''
         for computer in current_arp:
-            if computer not in database:
+            if not self.search(database, computer.ip):
                 self.__database.add_row(computer)
                 database = self.__database.read()
         self.__print("Database updated.")
