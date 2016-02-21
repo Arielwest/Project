@@ -17,8 +17,10 @@ def show_main_form():
         status = request.form['Status']
         if status == "offline":
             WakeOnLan.wake_on_lan(mac) #"10-60-4B-6B-6C-CF")
+            ComputerDatabase().update_state(mac)
         else:
             WakeOnLan.shutdown(ip)
+            ComputerDatabase().update_state(ip)
     computers_dict = ComputerDatabase().make_dictionary()
     computers = [dict(IP=ip, MAC=mac, STATUS=state, INDEX=index) for ip, mac, state, index in izip(computers_dict['IP'], computers_dict['MAC'], computers_dict['STATUS'], computers_dict['INDEX'])]
     return render_template("MainPage.htm", computers=computers)

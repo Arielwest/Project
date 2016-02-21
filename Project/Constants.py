@@ -12,3 +12,5 @@ NET_SCAN_WAIT = 60
 ANNOUNCE_SLEEP_TIME = 10
 PROCESS_ENUMERATE_SLEEP = 60
 EMPTY_PATH = '?'
+END_LINE = '\r\n'
+MAC_REGULAR_EXPRESSION = "/^(?:[[:xdigit:]]{2}([-:]))(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}$/"
