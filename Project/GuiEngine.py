@@ -16,7 +16,7 @@ def show_main_form():
         mac = request.form['Mac']
         status = request.form['Status']
         if status == "offline":
-            WakeOnLan.wake_on_lan(mac) #"10-60-4B-6B-6C-CF")
+            WakeOnLan.wake_on_lan(mac)
             ComputerDatabase().update_state(mac)
         else:
             WakeOnLan.shutdown(ip)

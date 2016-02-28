@@ -13,4 +13,4 @@ ANNOUNCE_SLEEP_TIME = 10
 PROCESS_ENUMERATE_SLEEP = 60
 EMPTY_PATH = '?'
 END_LINE = '\r\n'
-MAC_REGULAR_EXPRESSION = "/^(?:[[:xdigit:]]{2}([-:]))(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}$/"
+MAC_REGULAR_EXPRESSION = b"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"

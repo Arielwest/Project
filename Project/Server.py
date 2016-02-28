@@ -33,15 +33,11 @@ class Server(object):
         self.__print("Updating database...")
         current_arp = NetMap.map()
         database = self.__database.read()
-        '''
-        Loop for updating the state of the computer
-        '''
+        # Loop for updating the state of the computer
         for computer in database:
             computer.active = self.search(current_arp, computer.ip)
             self.__database.update_state(computer)
-        '''
-        Loop for updating the database
-        '''
+        # Loop for updating the database
         for computer in current_arp:
             if not self.search(database, computer.ip):
                 self.__database.add_row(computer)

@@ -52,15 +52,15 @@ class ComputerDatabase:
             self.__cursor.execute("UPDATE Computers SET active='%s' WHERE MAC='%s'" % (active, computer.mac))
             self.__database.commit()
             return
-        elif isinstance(computer, str) and re.match(IP_REGULAR_EXPRESSION, computer):
+        elif (isinstance(computer, str) or isinstance(computer, unicode)) and re.match(IP_REGULAR_EXPRESSION, computer):
             parameter = "IP"
-        elif isinstance(computer, str) and re.match(MAC_REGULAR_EXPRESSION, computer):
+        elif (isinstance(computer, str) or isinstance(computer, unicode)) and re.match(MAC_REGULAR_EXPRESSION, computer):
             parameter = "MAC"
         else:
             raise ValueError
         self.__cursor.execute("SELECT active FROM Computers WHERE %s='%s'" % (parameter, computer))
         self.__database.commit()
-        active = bool(self.__cursor.fetchone())
+        active = self.__cursor.fetchone() == "True"
         active = not active
         self.__cursor.execute("UPDATE Computers SET active='%s' WHERE %s='%s'" % (active, parameter, computer))
         self.__database.commit()
