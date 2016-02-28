@@ -7,6 +7,7 @@ from time import sleep
 import pythoncom
 from select import select
 import subprocess
+import pickle
 
 
 class Server(object):
@@ -24,7 +25,6 @@ class Server(object):
             if comp.ip == ip:
                 return True
         return False
-
 
     def start(self):
         """
@@ -49,6 +49,8 @@ class Server(object):
         broadcast_announce_thread = Thread(target=self.__broadcast_announce)
         broadcast_announce_thread.setDaemon(True)
         broadcast_announce_thread.start()
+        self.__main_socket.bind(("0.0.0.0", SERVER_PORT))
+        self.__main_socket.listen(1)
         self.__run()
 
     def __run(self):
@@ -63,7 +65,7 @@ class Server(object):
                     client_socket, client_address = self.__main_socket.accept()
                     for computer in self.__database.read():
                         if computer.ip == client_address[0]:
-                            self._connected_clients.append(client_socket)
+                            self._connected_clients.append(Client(client_socket, computer))
 
     def __broadcast_announce(self):
         """
@@ -97,9 +99,42 @@ class Server(object):
 
 class Client(object):
     def __init__(self, sock, computer):
-        self.socket = sock
+        self.__socket = sock
+        if not isinstance(computer, Computer):
+            raise ValueError
         self.__computer = computer
-        # self.name =
+        self.name = gethostbyaddr(computer.ip)[0]
+        self.processes = []
+        self.update_processes()
+        print self.processes
+        exit()
+
+    def update_processes(self):
+        self.send("UpdateProcesses")
+        data = self.receive()
+        print data
+        exit()
+        data = pickle.loads(data)
+        self.processes = []
+        for item in data:
+            self.processes.append(pickle.loads(item))
+
+    def send(self, data):
+        self.__socket.send(data)
+
+    def receive(self):
+        parts = {}
+        length = self.__socket.recv(BUFFER_SIZE)
+        print length
+        for i in xrange(int(length)):
+            data = self.__socket.recv(BUFFER_SIZE)
+            print data + END_LINE * 3
+            data = data.split('@')
+            parts[int(data[0])] = '@'.join(data[1:])
+        data = ""
+        for i in xrange(int(length)):
+            data += parts[i]
+        return data
 
 
 def main():

@@ -15,6 +15,7 @@ import pythoncom
 from os import listdir
 from os.path import exists
 from ctypes import windll
+from select import select
 
 
 class Client(object):
@@ -186,37 +187,34 @@ class Client(object):
                 except:
                     result = "ERROR"
                 self.__return_answer(result)
-            else:
-                break
 
 
     def __get_data(self):
         """
         Relieves the requests from the server
         """
-        """
         to_read, to_write, error = select([self.__socket], [self.__socket], [])
         if self.__socket in to_read:
-            data = self.__socket.recv(BUFFER_SIZE)
+            try:
+                data = self.__socket.recv(BUFFER_SIZE)
+            except socket.error:
+                data = ""
             if data == "":
                 self.__print("Lost connection with server.")
                 exit()
             return data
         return ""
-        """
-        return raw_input("DATA: ")
 
     def __return_answer(self, data):
         """
         sends back the result
         """
-        """
-        to_send = [data[i:i + BUFFER_SIZE] for i in xrange(0, len(data), BUFFER_SIZE)]
+        to_send = [data[i:i + BUFFER_SIZE - 4] for i in xrange(0, len(data), BUFFER_SIZE)]
         self.__socket.send(str(len(to_send)))
-        for part in to_send:
-            self.__socket.send(part)
-            """
-        print data
+        for i in xrange(len(to_send)):
+            num = str(i)
+            num = "".join([str(j - j) for j in xrange(3 - len(num))]) + num
+            self.__socket.send(num + "@" + to_send[i])
 
     def __update_processes_routine(self):
         """

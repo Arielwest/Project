@@ -12,15 +12,18 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def show_main_form():
     if request.method == 'POST':
-        ip = request.form['Ip']
-        mac = request.form['Mac']
-        status = request.form['Status']
-        if status == "offline":
-            WakeOnLan.wake_on_lan(mac)
-            ComputerDatabase().update_state(mac)
+        if request.form['Action'] == "Info":
+            pass
         else:
-            WakeOnLan.shutdown(ip)
-            ComputerDatabase().update_state(ip)
+            ip = request.form['Ip']
+            mac = request.form['Mac']
+            status = request.form['Status']
+            if status == "offline":
+                WakeOnLan.wake_on_lan(mac)
+                ComputerDatabase().update_state(mac)
+            else:
+                WakeOnLan.shutdown(ip)
+                ComputerDatabase().update_state(ip)
     computers_dict = ComputerDatabase().make_dictionary()
     computers = [dict(IP=ip, MAC=mac, STATUS=state, INDEX=index) for ip, mac, state, index in izip(computers_dict['IP'], computers_dict['MAC'], computers_dict['STATUS'], computers_dict['INDEX'])]
     return render_template("MainPage.htm", computers=computers)

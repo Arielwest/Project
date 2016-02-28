@@ -40,7 +40,7 @@ class ComputerDatabase:
         self.__database.commit()
         rows = self.__cursor.fetchall()
         for row in rows:
-            computers.append(Computer(row[0], row[1], row[2] == "True"))
+            computers.append(Computer(row[0], row[1], row[2] == u"True" or row[2] == "True"))
         return computers
 
     def update_state(self, computer):
@@ -60,7 +60,8 @@ class ComputerDatabase:
             raise ValueError
         self.__cursor.execute("SELECT active FROM Computers WHERE %s='%s'" % (parameter, computer))
         self.__database.commit()
-        active = self.__cursor.fetchone() == "True"
+        active = self.__cursor.fetchone()
+        active = active == u"True" or "True"
         active = not active
         self.__cursor.execute("UPDATE Computers SET active='%s' WHERE %s='%s'" % (active, parameter, computer))
         self.__database.commit()
