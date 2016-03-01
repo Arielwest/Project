@@ -1,33 +1,35 @@
 import sqlite3
 from Constants import *
-from ComputerObjects import *
+from ClientInterface import Computer
 import re
 
 
 class ComputerDatabase:
 
     def __init__(self):  # Constructor
-        self.__database = sqlite3.connect(DATABASE_NAME)
-        self.__cursor = self.__database.cursor()
         self.__create_computers_table()
 
     def __create_computers_table(self):
         """
         Creates the tables if it doesn't exist
         """
-        self.__cursor.execute('''CREATE TABLE if not exists Computers
+        database, cursor = self.__open()
+        cursor.execute('''CREATE TABLE if not exists Computers
         (MAC   STRING,
         IP     STRING,
         active STRING);''')
-        self.__database.commit()
+        database.commit()
+        self.__close(cursor, database)
 
     def add_row(self, computer):
         """
         Inserts a new row to the table
         """
         if isinstance(computer, Computer):
-            self.__cursor.execute("INSERT INTO Computers VALUES('%s','%s','%s')" % (computer.mac, computer.ip, str(computer.active)))
-            self.__database.commit()
+            database, cursor = self.__open()
+            cursor.execute("INSERT INTO Computers VALUES('%s','%s','%s')" % (computer.mac, computer.ip, str(computer.active)))
+            database.commit()
+            self.__close(cursor, database)
         else:
             raise ValueError
 
@@ -35,22 +37,26 @@ class ComputerDatabase:
         """
         Reads all the database and returns it as a list
         """
+        database, cursor = self.__open()
         computers = []
-        self.__cursor.execute("SELECT * FROM Computers ORDER BY active DESC")
-        self.__database.commit()
-        rows = self.__cursor.fetchall()
+        cursor.execute("SELECT * FROM Computers ORDER BY active DESC")
+        database.commit()
+        rows = cursor.fetchall()
         for row in rows:
             computers.append(Computer(row[0], row[1], row[2] == u"True" or row[2] == "True"))
+        self.__close(cursor, database)
         return computers
 
     def update_state(self, computer):
         """
         Updates the state of a computer
         """
+        database, cursor = self.__open()
         if isinstance(computer, Computer):
             active = str(computer.active)
-            self.__cursor.execute("UPDATE Computers SET active='%s' WHERE MAC='%s'" % (active, computer.mac))
-            self.__database.commit()
+            cursor.execute("UPDATE Computers SET active='%s' WHERE MAC='%s'" % (active, computer.mac))
+            database.commit()
+            self.__close(cursor, database)
             return
         elif (isinstance(computer, str) or isinstance(computer, unicode)) and re.match(IP_REGULAR_EXPRESSION, computer):
             parameter = "IP"
@@ -58,13 +64,15 @@ class ComputerDatabase:
             parameter = "MAC"
         else:
             raise ValueError
-        self.__cursor.execute("SELECT active FROM Computers WHERE %s='%s'" % (parameter, computer))
-        self.__database.commit()
-        active = self.__cursor.fetchone()
+        cursor.execute("SELECT active FROM Computers WHERE %s='%s'" % (parameter, computer))
+        database.commit()
+        active = cursor.fetchone()
         active = active == u"True" or "True"
         active = not active
-        self.__cursor.execute("UPDATE Computers SET active='%s' WHERE %s='%s'" % (active, parameter, computer))
-        self.__database.commit()
+        cursor.execute("UPDATE Computers SET active='%s' WHERE %s='%s'" % (active, parameter, computer))
+        database.commit()
+        self.__close(cursor, database)
+
 
     def make_dictionary(self):
         computers_dict = {"IP": [], "MAC": [], "STATUS": [], "INDEX": []}
@@ -79,12 +87,17 @@ class ComputerDatabase:
         return computers_dict
 
 
-    def close(self):
+    def __close(self, cursor, database):
         """
         Closes itself
         """
-        self.__cursor.close()
-        self.__database.close()
+        cursor.close()
+        database.close()
+
+    def __open(self):
+        database = sqlite3.connect(DATABASE_NAME)
+        cursor = database.cursor()
+        return database, cursor
 
 
 def main():

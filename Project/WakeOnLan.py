@@ -25,6 +25,7 @@ def wake_on_lan(mac_address):
     sock.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
     sock.sendto(send_data, ('<broadcast>', WAKE_ON_LAN_PORT))
 
+
 def shutdown(host=None, msg=None, timeout=0, force=1, reboot=0):
     """
     Shutdown a computer

@@ -1,37 +1,52 @@
 from Constants import *
-from ComputerDatabase import ComputerDatabase
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, redirect, url_for
 from itertools import izip
 import webbrowser
-
-import WakeOnLan
+from Server import Server
+from threading import Thread
+from ClientInterface import Computer
 
 app = Flask(__name__)
+server = Server()
 
 
 @app.route('/', methods=['GET', 'POST'])
 def show_main_form():
-    if request.method == 'POST':
-        if request.form['Action'] == "Info":
-            pass
-        else:
+    if (not server.running) and (not server.starting):
+        start_thread = Thread(target=server.start)
+        start_thread.setDaemon(True)
+        start_thread.start()
+        return render_template("Loading.html")
+    elif server.starting:
+        return render_template("Loading.html")
+    elif server.running:
+        if request.method == 'POST':
             ip = request.form['Ip']
             mac = request.form['Mac']
-            status = request.form['Status']
-            if status == "offline":
-                WakeOnLan.wake_on_lan(mac)
-                ComputerDatabase().update_state(mac)
+            active = request.form['Status'] == "online" or request.form['Status'] == u'online'
+            if request.form['Action'] == "More":
+                url = url_for("view_computer", mac=mac, ip=ip)
+                return redirect(url)
             else:
-                WakeOnLan.shutdown(ip)
-                ComputerDatabase().update_state(ip)
-    computers_dict = ComputerDatabase().make_dictionary()
-    computers = [dict(IP=ip, MAC=mac, STATUS=state, INDEX=index) for ip, mac, state, index in izip(computers_dict['IP'], computers_dict['MAC'], computers_dict['STATUS'], computers_dict['INDEX'])]
-    return render_template("MainPage.htm", computers=computers)
+                if not active:
+                    server.wake_up(Computer(mac, ip, False))
+                else:
+                    server.shutdown(Computer(mac, ip, True))
+        computers_dict = server.make_computers_dictionary()
+        computers = [dict(IP=ip,MAC=mac, STATUS=state, INDEX=index, CONNECTED=connected) for ip, mac, state, index, connected in izip(computers_dict['IP'], computers_dict['MAC'], computers_dict['STATUS'], computers_dict['INDEX'], computers_dict['CONNECTED'])]
+        return render_template("MainPage.html", computers=computers)
+
+
+@app.route('/view_computer?mac=<mac>&ip=<ip>', methods=['GET', 'POST'])
+def view_computer(mac, ip):
+    print mac, ip
+    computer_data = server.computer_data(Computer(mac, ip))
+    return render_template("InfoPage.html", computer=computer_data)
 
 
 def main():
     webbrowser.open(FLASK_URL)
-    app.run()
+    app.run(host="0.0.0.0")
 
 if __name__ == "__main__":
     main()

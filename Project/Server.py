@@ -1,13 +1,12 @@
 from Constants import *
-from socket import socket, gethostbyaddr, gethostbyname, gethostname, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST
+from socket import socket, gethostbyname, gethostname, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST
 from threading import Thread, Lock
-from ComputerDatabase import *
+from ComputerDatabase import ComputerDatabase
 from NetMap import NetMap
 from time import sleep
 import pythoncom
 from select import select
-import subprocess
-import pickle
+from ClientInterface import ClientInterface, ClientList, Computer
 
 
 class Server(object):
@@ -17,8 +16,9 @@ class Server(object):
         self.__database = ComputerDatabase()
         self.__database_lock = Lock()
         self.__announce_socket = socket(AF_INET, SOCK_DGRAM)
-        self.gui = None
-        self._connected_clients = []
+        self.running = False
+        self.starting = False
+        self._connected_clients = ClientList()
 
     def search(self, comp_list, ip):
         for comp in comp_list:
@@ -30,8 +30,11 @@ class Server(object):
         """
         Starts the server
         """
+        self.starting = True
         self.__print("Updating database...")
+        pythoncom.CoInitialize()
         current_arp = NetMap.map()
+        pythoncom.CoUninitialize()
         database = self.__database.read()
         # Loop for updating the state of the computer
         for computer in database:
@@ -51,6 +54,8 @@ class Server(object):
         broadcast_announce_thread.start()
         self.__main_socket.bind(("0.0.0.0", SERVER_PORT))
         self.__main_socket.listen(1)
+        self.starting = False
+        self.running = True
         self.__run()
 
     def __run(self):
@@ -65,7 +70,7 @@ class Server(object):
                     client_socket, client_address = self.__main_socket.accept()
                     for computer in self.__database.read():
                         if computer.ip == client_address[0]:
-                            self._connected_clients.append(Client(client_socket, computer))
+                            self._connected_clients.append(ClientInterface(client_socket, computer))
 
     def __broadcast_announce(self):
         """
@@ -85,56 +90,46 @@ class Server(object):
             pythoncom.CoInitialize()
             current_arp = NetMap.map()
             pythoncom.CoUninitialize()
-            database = ComputerDatabase()
-            data = database.read()
+            data = self.__database.read()
             for computer in current_arp:
                 if computer not in data:
-                    database.add_row(computer)
-                    data = database.read()
-            database.close()
+                    self.__database.add_row(computer)
+                    data = self.__database.read()
 
     def __print(self, data):
         print data
 
+    def wake_up(self, computer):
+        if isinstance(computer, Computer):
+            for other_computer in self.__database.read():
+                if other_computer == computer:
+                    computer.wake_up()
+                    self.__database.update_state(computer)
+                    return
 
-class Client(object):
-    def __init__(self, sock, computer):
-        self.__socket = sock
-        if not isinstance(computer, Computer):
-            raise ValueError
-        self.__computer = computer
-        self.name = gethostbyaddr(computer.ip)[0]
-        self.processes = []
-        self.update_processes()
-        print self.processes
-        exit()
+    def shutdown(self, computer):
+        if isinstance(computer, Computer):
+            for other_computer in self.__database.read():
+                if other_computer == computer:
+                    computer.shutdown()
+                    self.__database.update_state(computer)
+                    return
 
-    def update_processes(self):
-        self.send("UpdateProcesses")
-        data = self.receive()
-        print data
-        exit()
-        data = pickle.loads(data)
-        self.processes = []
-        for item in data:
-            self.processes.append(pickle.loads(item))
+    def make_computers_dictionary(self):
+        dictionary = self.__database.make_dictionary()
+        dictionary["CONNECTED"] = []
+        for i in xrange(len(dictionary["MAC"])):
+            dictionary["CONNECTED"].append(str(Computer(dictionary["MAC"][i], dictionary["IP"][i]) in self._connected_clients))
+        return dictionary
 
-    def send(self, data):
-        self.__socket.send(data)
-
-    def receive(self):
-        parts = {}
-        length = self.__socket.recv(BUFFER_SIZE)
-        print length
-        for i in xrange(int(length)):
-            data = self.__socket.recv(BUFFER_SIZE)
-            print data + END_LINE * 3
-            data = data.split('@')
-            parts[int(data[0])] = '@'.join(data[1:])
-        data = ""
-        for i in xrange(int(length)):
-            data += parts[i]
-        return data
+    def computer_data(self, computer):
+        for client in self._connected_clients:
+            if computer == client:
+                computer = client
+                break
+        return {"MAC": computer.get_mac(),
+                "IP": computer.get_ip(),
+                "HOST": computer.name}
 
 
 def main():

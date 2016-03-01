@@ -4,18 +4,17 @@ from Constants import *
 from threading import Thread, Lock
 from wmi import WMI
 from time import sleep
-from ComputerObjects import Process
 from win32file import CreateDirectory, DeleteFile, RemoveDirectory
 from win32process import CreateProcess, STARTUPINFO, TerminateProcess
 from win32api import OpenProcess
 from win32api import GetLogicalDriveStrings
 from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS
-import pickle
 import pythoncom
 from os import listdir
 from os.path import exists
 from ctypes import windll
 from select import select
+from Process import Process
 
 
 class Client(object):
@@ -114,8 +113,9 @@ class Client(object):
         self.__update_processes()
         self.__processes_lock.acquire()
         for process in self.__processes:
-            result.append(pickle.dumps(process))
-        return pickle.dumps(result)
+            if "Skype" in process.name:
+                result.append(str(process))
+        return str(result)
 
     def __files_in(self, path):
         """
@@ -234,7 +234,7 @@ class Client(object):
         self.__processes_lock.acquire()
         self.__processes = []
         for process in wmi.Win32_Process():
-            process_object = Process(process.Name, process.ProcessID, process.ParentProcessID)
+            process_object = Process(process.Name, str(process.ProcessID), str(process.ParentProcessID))
             self.__processes.append(process_object)
         self.__processes_lock.release()
 
