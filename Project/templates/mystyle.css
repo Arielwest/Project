@@ -1,14 +1,3 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" type="text/css" href="mystyle.css">
-<title>Network Manager</title>
-<<<<<<< HEAD:Project/templates/MainPage.html
-
-<style type="text/css">
-
-
 /* Im reseting this style for optimal view using Eric Meyer's CSS Reset - http://meyerweb.com/eric/tools/css/reset/
 ------------------------------------------------------------------ */
 body, html  { height: 100%; }
@@ -99,7 +88,7 @@ table tr td {
 	border-top: 1px solid #ffffff;
 	border-bottom:1px solid #e0e0e0;
 	border-left: 1px solid #e0e0e0;
-	
+
 	background: #fafafa;
 	background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa));
 	background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa);
@@ -125,7 +114,7 @@ table tr:last-child td:last-child{
 table tr:hover td{
 	background: #f2f2f2;
 	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0));
-	background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);	
+	background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);
 }
 
 .IpText{
@@ -141,7 +130,7 @@ table tr:hover td{
 }
 .IpText:hover {
     color: #fff;
-}  
+}
 .MacText{
     background: #333;
     color: #ccc;
@@ -155,7 +144,7 @@ table tr:hover td{
 }
 .MacText:hover {
     color: #fff;
-} 
+}
 
 .StatusText{
     background: #333;
@@ -170,50 +159,19 @@ table tr:hover td{
 }
 .StatusText:hover {
     color: #fff;
-}   
+}
 
 DIV.table
 {
-  display: table;
+  dispaly: table;
 }
 
 FORM.tr, DIV.tr
 {
-  display: table-row;
+  dispaly: table-row;
 }
 SPAN.td
 {
-  display: table-cell;
+  dispaly: table-cell;
 }
 
-
-</style>
-=======
->>>>>>> origin/master:Project/templates/MainPage.htm
-</head>
-
-<body>
- <p>Computers:</p>
- <table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
-	 <tr><th>INDEX</th><th>IP</th><th>MAC</th><th>Status</th><th>Operations</th></tr><!-- Table Header -->
-	 {% for row in computers %}
-	 <form method="post" action="{{ url_for('show_main_form') }}">
-		 <tr class='even'>
-			 <td>{{ row['INDEX'] }}</td>
-			 <td><input class="IpText" type="text" value="{{ row['IP'] }}"  name="Ip" readonly />  </td>
-			 <td><input class="MacText" type="text" value="{{ row['MAC'] }}" name="Mac" readonly />  </td>
-			 <td><input class="StatusText" type="text" value="{{ row['STATUS'] }}" name="Status" readonly />  </td>
-			 {% if row['STATUS'] == 'offline' %}
-			 <td> <input id="ButtonWOL" type="submit" value="WakeOnLAN" name="Action" />
-				 {% else %}
-			 <td><input id="ButtonShutDown" type="submit" value="Shutdown" name="Action" />
-			 {% endif %}
-			 {% if row['CONNECTED'] == 'True'%}
-			 <input id="Information" type="submit" value="More" name="Action"></td>>
-			 {% endif %}
-		 </tr>
-	 </form>
-	 {% endfor %}
- </table>
-</body>
-</html>

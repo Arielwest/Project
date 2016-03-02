@@ -6,7 +6,11 @@ from NetMap import NetMap
 from time import sleep
 import pythoncom
 from select import select
+<<<<<<< HEAD
 from ClientInterface import ClientInterface, ClientList, Computer
+=======
+import pickle
+>>>>>>> origin/master
 
 
 class Server(object):
