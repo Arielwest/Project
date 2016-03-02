@@ -6,7 +6,6 @@ from NetMap import NetMap
 from time import sleep
 import pythoncom
 from select import select
-import subprocess
 import pickle
 
 
