@@ -5,17 +5,9 @@ from threading import Thread, Lock
 from wmi import WMI
 from time import sleep
 from win32file import CreateDirectory, DeleteFile, RemoveDirectory
-<<<<<<< HEAD
-from win32process import CreateProcess, STARTUPINFO, TerminateProcess
-from win32api import OpenProcess
-from win32api import GetLogicalDriveStrings
-from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS
-=======
 from win32process import CreateProcess, STARTUPINFO, TerminateProcess, STARTF_USESHOWWINDOW
 from win32api import OpenProcess, GetLogicalDriveStrings
 from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS, SW_NORMAL
-import pickle
->>>>>>> origin/master
 import pythoncom
 from os import listdir
 from os.path import exists
