@@ -163,15 +163,14 @@ table tr:hover td{
 
 DIV.table
 {
-  dispaly: table;
+  display: table;
 }
 
 FORM.tr, DIV.tr
 {
-  dispaly: table-row;
+  display: table-row;
 }
 SPAN.td
 {
-  dispaly: table-cell;
+  display: table-cell;
 }
-

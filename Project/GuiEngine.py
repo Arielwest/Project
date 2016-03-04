@@ -39,7 +39,6 @@ def show_main_form():
 
 @app.route('/view_computer?mac=<mac>&ip=<ip>', methods=['GET', 'POST'])
 def view_computer(mac, ip):
-    print mac, ip
     computer_data = server.computer_data(Computer(mac, ip))
     return render_template("InfoPage.html", computer=computer_data)
 
