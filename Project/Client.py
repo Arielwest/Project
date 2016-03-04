@@ -14,6 +14,7 @@ from os.path import exists
 from ctypes import windll
 from select import select
 from Process import Process
+import pickle
 
 
 class Client(object):
@@ -90,7 +91,6 @@ class Client(object):
         """
         kill a process
         """
-        pid = int(pid)
         process_exists = False
         for process in self.__processes:
             if process.pid == pid:
@@ -115,8 +115,9 @@ class Client(object):
         self.__update_processes()
         self.__processes_lock.acquire()
         for process in self.__processes:
-            if "Skype" in process.name:
-                result.append(str(process))
+            process_parts = str(process.name) + "+" + str(process.pid) + "+" + str(process.parent_id)
+            result.append(str(process_parts))
+        self.__processes_lock.release()
         return str(result)
 
     def __files_in(self, path):

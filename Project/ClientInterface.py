@@ -2,6 +2,7 @@ from Constants import *
 from socket import gethostbyaddr
 from WakeOnLan import wake_on_lan, shutdown
 from Process import Process
+import pickle
 
 
 class ClientInterface(object):
@@ -32,15 +33,12 @@ class ClientInterface(object):
     def update_processes(self):
         self.send("UpdateProcesses")
         data = self.receive()
-        data = data.replace(BROKEN_END_LINE, END_LINE)
-        data = data[1:-1].split(", ")
+        process_list = [item[1:-1] for item in data[1:-1].split(", ")]
         self.processes = []
-        for item in data:
-            parts = item.split(END_LINE)
-            name = parts[0].split()[-1]
-            pid = parts[1].split()[-1]
-            parent_id = parts[2].split()[-1]
-            self.processes.append(Process(name, pid, parent_id))
+        for item in process_list:
+            process_parts = item.split("+")
+            process = Process(process_parts[0], process_parts[1], process_parts[2])
+            self.processes.append(process)
 
     def send(self, data):
         self.__socket.send(data)
@@ -56,6 +54,12 @@ class ClientInterface(object):
         for i in xrange(int(length)):
             data += parts[i]
         return data
+
+    def terminate(self, process):
+        if isinstance(process, Process) and process in self.processes:
+            self.send("TerminateProcess " + process.pid)
+            result = self.receive()
+            return result
 
 
 class ClientList(object):

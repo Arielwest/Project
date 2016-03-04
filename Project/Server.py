@@ -122,14 +122,30 @@ class Server(object):
             dictionary["CONNECTED"].append(str(Computer(dictionary["MAC"][i], dictionary["IP"][i]) in self._connected_clients))
         return dictionary
 
-    def computer_data(self, computer):
+    def __find_client(self, computer):
         for client in self._connected_clients:
             if computer == client:
-                computer = client
-                break
-        return {"MAC": computer.get_mac(),
-                "IP": computer.get_ip(),
-                "HOST": computer.name}
+                return client
+
+    def computer_data(self, computer):
+        client = self.__find_client(computer)
+        return {"MAC": client.get_mac(),
+                "IP": client.get_ip(),
+                "HOST": client.name}
+
+    def get_processes_data(self, computer):
+        client = self.__find_client(computer)
+        if isinstance(client, ClientInterface):
+            client.update_processes()
+            processes_list = [dict(NAME=process.name, PID=process.pid, PARENT_ID=process.parent_id) for process in client.processes]
+            return processes_list
+
+
+    def terminate_process(self, computer, process):
+        client = self.__find_client(computer)
+        if isinstance(client, ClientInterface):
+            result = client.terminate(process)
+            return result
 
 
 def main():

@@ -1,11 +1,4 @@
-from flask import Flask, render_template
-
-app = Flask(__name__)
-
-
-@app.route('/')
-def foo():
-    return render_template("foo.html")
-
-if __name__ == "__main__":
-    app.run()
+print {"jdfhklsjagfkl": 456423,
+       4874158710000000: "hjkfgvd",
+       5445454:22323232,
+       "bdsnjafd": "ndfjskl"}

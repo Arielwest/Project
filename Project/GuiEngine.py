@@ -5,6 +5,7 @@ import webbrowser
 from Server import Server
 from threading import Thread
 from ClientInterface import Computer
+from Process import Process
 
 app = Flask(__name__)
 server = Server()
@@ -39,8 +40,42 @@ def show_main_form():
 
 @app.route('/view_computer?mac=<mac>&ip=<ip>', methods=['GET', 'POST'])
 def view_computer(mac, ip):
-    computer_data = server.computer_data(Computer(mac, ip))
-    return render_template("InfoPage.html", computer=computer_data)
+    if request.method == 'POST':
+        ip = request.form['Ip']
+        mac = request.form['Mac']
+        name = request.form['Host']
+        function = request.form['Action'].lower().replace(' ', '_')
+        return redirect(url_for(function, mac=mac, ip=ip, name=name))
+    elif request.method == 'GET':
+        computer_data = server.computer_data(Computer(mac, ip))
+        return render_template("InfoPage.html", computer=computer_data)
+
+
+@app.route('/view_files?mac=<mac>&ip=<ip>', methods=['GET', 'POST'])
+def show_files(mac, ip):
+    if request.method == 'POST':
+        ip = request.form['Ip']
+        mac = request.form['Mac']
+        function = request.form['Action']
+        pass
+    elif request.method == 'GET':
+        computer_data = server.computer_data(Computer(mac, ip))
+        return render_template("FilesPage.html", computer=computer_data)
+
+
+@app.route('/view_processes?mac=<mac>&ip=<ip>&name=<name>', methods=['GET', 'POST'])
+def show_processes(mac, ip, name):
+    message = ""
+    computer = Computer(mac, ip)
+    if request.method == 'POST':
+        process_name = request.form['name']
+        pid = request.form['pid']
+        parent_id = request.form['parent_id']
+        function = request.form['Action']
+        if function == "Terminate":
+            message = server.terminate_process(computer, Process(process_name, pid, parent_id))
+    process_list = server.get_processes_data(computer)
+    return render_template("ProcessesPage.html", process_list=process_list, mac=mac, ip=ip, name=name, message=message)
 
 
 def main():
