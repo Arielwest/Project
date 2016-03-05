@@ -3,10 +3,12 @@ from socket import gethostbyaddr
 from WakeOnLan import wake_on_lan, shutdown
 from Process import Process
 from socket import socket
+import pickle
+
 
 class ClientInterface(object):
     def __init__(self, sock, computer):
-        self.__socket = sock
+        self.socket = sock
         if not isinstance(computer, Computer):
             raise ValueError
         else:
@@ -40,13 +42,13 @@ class ClientInterface(object):
             self.processes.append(process)
 
     def send(self, data):
-        self.__socket.send(data)
+        self.socket.send(data)
 
     def receive(self):
         parts = {}
-        length = self.__socket.recv(BUFFER_SIZE)
+        length = self.socket.recv(BUFFER_SIZE)
         for i in xrange(int(length)):
-            data = self.__socket.recv(BUFFER_SIZE)
+            data = self.socket.recv(BUFFER_SIZE)
             data = data.split('@')
             parts[int(data[0])] = '@'.join(data[1:])
         data = ""
@@ -64,6 +66,13 @@ class ClientInterface(object):
         self.send("CreateProcess " + command)
         result = self.receive()
         return result
+
+    def send_files(self):
+        self.send("UpdateFiles")
+        result = self.receive()
+        if "ERROR" not in result:
+            result = pickle.loads(result)
+            return result
 
 
 class ClientList(object):

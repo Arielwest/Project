@@ -9,8 +9,7 @@ from win32process import CreateProcess, STARTUPINFO, TerminateProcess, STARTF_US
 from win32api import OpenProcess, GetLogicalDriveStrings, CloseHandle
 from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS, SW_NORMAL
 import pythoncom
-from os import listdir
-from os.path import exists
+import os
 from ctypes import windll
 from select import select
 from Process import Process
@@ -31,14 +30,14 @@ class Client(object):
             "CreateProcess": self.__create_process,
             "TerminateProcess": self.__terminate_process,
             "UpdateProcesses": self.__send_processes,
-            "FilesIn": self.__files_in
+            "UpdateFiles": self.__update_files
         }
 
     def __create_file(self, path, name):
         """
         Creates a new file in directory
         """
-        if exists(path):
+        if os.path.exists(path):
             directory = path
             if not directory.endswith('\\'):
                 directory += '\\'
@@ -59,7 +58,7 @@ class Client(object):
         """
         Deltes the file in path
         """
-        if exists(path):
+        if os.path.exists(path):
             try:
                 if len(path.split('.')) >= 2:
                     DeleteFile(path)
@@ -121,17 +120,31 @@ class Client(object):
         self.__processes_lock.release()
         return str(result)
 
-    def __files_in(self, path):
+    def __update_files(self):
         """
         Returns whats is inside that file
         """
-        if path == EMPTY_PATH:
-            files = ' '.join(GetLogicalDriveStrings().split('\000')[:-1])
-        elif exists(path):
-            files = ' '.join([f for f in listdir(path)])
+        files = GetLogicalDriveStrings().split('\000')[:-1]
+        result = dict(name=self.__name, children=[])
+        for path in files:
+            tree = self.__make_tree(path)
+            result['children'].append(tree)
+        return pickle.dumps(result)
+
+    def __make_tree(self, path):
+        tree = dict(name=os.path.basename(path), children=[])
+        try:
+            lst = os.listdir(path)
+        except OSError:
+            pass #ignore errors
         else:
-            files = "ERROR: no directory " + path
-        return files
+            for name in lst:
+                fn = os.path.join(path, name)
+                if os.path.isdir(fn):
+                    tree['children'].append(self.__make_tree(fn))
+                else:
+                    tree['children'].append(dict(name=name))
+        return tree
 
     def __print(self, data):
         print data

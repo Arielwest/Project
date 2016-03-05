@@ -160,6 +160,12 @@ class Server(object):
             result = client.open_process(command)
             return result
 
+    def files(self, computer):
+        client = self.__find_client(computer)
+        if isinstance(client, ClientInterface):
+            result = client.send_files()
+            return result
+
 
 def main():
     server = Server()

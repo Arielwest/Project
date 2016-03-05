@@ -7,12 +7,14 @@ app = Flask(__name__)
 @app.route('/')
 def dirtree():
     path = os.path.expanduser(u'~')
-    return render_template('dirtree.html', tree=make_tree(path))
+    tree = make_tree(path)
+    return render_template('FilesPage.html', tree=tree, message="", mac="", ip="", name="")
 
 
 def make_tree(path):
     tree = dict(name=os.path.basename(path), children=[])
-    try: lst = os.listdir(path)
+    try:
+        lst = os.listdir(path)
     except OSError:
         pass #ignore errors
     else:
