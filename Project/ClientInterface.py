@@ -3,6 +3,8 @@ from socket import gethostbyaddr
 from WakeOnLan import wake_on_lan, shutdown
 from Process import Process
 from socket import socket
+import pickle
+
 
 class ClientInterface(object):
     def __init__(self, sock, computer):
@@ -65,6 +67,12 @@ class ClientInterface(object):
         result = self.receive()
         return result
 
+    def send_files(self):
+        self.send("UpdateFiles")
+        result = self.receive()
+        if "ERROR" not in result:
+            result = pickle.loads(result)
+            return result
 
 class ClientList(object):
     def __init__(self):
@@ -99,12 +107,6 @@ class ClientList(object):
     def __iter__(self):
         for item in self.__items:
             yield item
-
-    def sockets(self):
-        result = []
-        for client in self.__items:
-            result.append(client.socket)
-        return result
 
 
 class Computer(object):

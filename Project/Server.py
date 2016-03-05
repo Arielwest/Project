@@ -64,21 +64,13 @@ class Server(object):
         """
         self.__print("Server started!")
         while True:
-            to_read, to_write, error = select([self.__main_socket] + self._connected_clients.sockets(), [], [])
+            to_read, to_write, error = select([self.__main_socket], [], [])
             for sock in to_read:
                 if sock is self.__main_socket:
                     client_socket, client_address = self.__main_socket.accept()
                     for computer in self.__database.read():
                         if computer.ip == client_address[0]:
                             self._connected_clients.append(ClientInterface(client_socket, computer))
-                else:
-                    try:
-                        data = sock.recv(BUFFER_SIZE)
-                    except:
-                        self._connected_clients.remove(sock)
-                    else:
-                        if data == "":
-                            self._connected_clients.remove(sock)
 
     def __broadcast_announce(self):
         """
@@ -158,6 +150,12 @@ class Server(object):
         client = self.__find_client(computer)
         if isinstance(client, ClientInterface):
             result = client.open_process(command)
+            return result
+
+    def files(self, computer):
+        client = self.__find_client(computer)
+        if isinstance(client, ClientInterface):
+            result = client.send_files()
             return result
 
 

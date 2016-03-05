@@ -56,16 +56,13 @@ def view_computer(mac, ip):
     return render_template("InfoPage.html", computer=computer_data, message=message)
 
 
-@app.route('/view_files?mac=<mac>&ip=<ip>', methods=['GET', 'POST'])
-def show_files(mac, ip):
+@app.route('/view_files?mac=<mac>&ip=<ip>&name=<name>', methods=['GET', 'POST'])
+def show_files(mac, ip, name):
+    message = ""
     if request.method == 'POST':
-        ip = request.form['Ip']
-        mac = request.form['Mac']
-        function = request.form['Action']
         pass
-    elif request.method == 'GET':
-        computer_data = server.computer_data(Computer(mac, ip))
-        return render_template("FilesPage.html", computer=computer_data)
+    tree = server.files(Computer(mac, ip))
+    return render_template("FilesPage.html", tree=tree, mac=mac, ip=ip, name=name, message=message)
 
 
 @app.route('/view_processes?mac=<mac>&ip=<ip>&name=<name>', methods=['GET', 'POST'])
@@ -87,7 +84,7 @@ def show_processes(mac, ip, name):
 
 def main():
     webbrowser.open(FLASK_URL)
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", debug=True)
 
 if __name__ == "__main__":
     main()

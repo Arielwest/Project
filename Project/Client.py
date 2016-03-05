@@ -9,7 +9,7 @@ from win32process import CreateProcess, STARTUPINFO, TerminateProcess, STARTF_US
 from win32api import OpenProcess, GetLogicalDriveStrings, CloseHandle
 from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS, SW_NORMAL
 import pythoncom
-from os import listdir
+import os
 from os.path import exists
 from ctypes import windll
 from select import select
@@ -31,7 +31,7 @@ class Client(object):
             "CreateProcess": self.__create_process,
             "TerminateProcess": self.__terminate_process,
             "UpdateProcesses": self.__send_processes,
-            "FilesIn": self.__files_in
+            "UpdateFiles": self.__make_tree
         }
 
     def __create_file(self, path, name):
@@ -241,6 +241,32 @@ class Client(object):
             process_object = Process(process.Name, str(process.ProcessID), str(process.ParentProcessID))
             self.__processes.append(process_object)
         self.__processes_lock.release()
+
+    def __update_files(self):
+        """
+        Returns whats is inside that file
+        """
+        files = GetLogicalDriveStrings().split('\000')[:-1]
+        result = dict(name=self.__name, children=[])
+        for path in files:
+            tree = self.__make_tree(path)
+            result['children'].append(tree)
+        return pickle.dumps(result)
+
+    def __make_tree(self, path):
+        tree = dict(name=os.path.basename(path), children=[])
+        try:
+            lst = os.listdir(path)
+        except OSError:
+            pass #ignore errors
+        else:
+            for name in lst:
+                fn = os.path.join(path, name)
+                if os.path.isdir(fn):
+                    tree['children'].append(self.__make_tree(fn))
+                else:
+                    tree['children'].append(dict(name=name))
+        return tree
 
 
 def main():
