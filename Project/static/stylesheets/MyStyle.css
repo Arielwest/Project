@@ -174,3 +174,33 @@ SPAN.td
 {
   display: table-cell;
 }
+
+#InputText {
+    background: #333;
+    color: #ccc;
+    width: 200px;
+    padding: 6px 15px 6px 35px;
+    border-radius: 20px;
+    box-shadow: 0 1px 0 #ccc inset;
+    transition: 500ms all ease;
+    outline: 0;
+}
+
+#InputText:hover {
+    width: 270px;
+}  
+
+.ProcessText{
+    background: #333;
+    color: #ccc;
+    width: 110px;
+	height: 20px;
+    padding: 6px 15px 6px 35px;
+    border-radius: 20px;
+    box-shadow: 0 1px 0 #ccc inset;
+    transition: 500ms all ease;
+    outline: 0;
+}
+.ProcessText:hover {
+    width: 250px;
+}

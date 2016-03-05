@@ -2,8 +2,7 @@ from Constants import *
 from socket import gethostbyaddr
 from WakeOnLan import wake_on_lan, shutdown
 from Process import Process
-import pickle
-
+from socket import socket
 
 class ClientInterface(object):
     def __init__(self, sock, computer):
@@ -61,6 +60,11 @@ class ClientInterface(object):
             result = self.receive()
             return result
 
+    def open_process(self, command):
+        self.send("CreateProcess " + command)
+        result = self.receive()
+        return result
+
 
 class ClientList(object):
     def __init__(self):
@@ -85,11 +89,22 @@ class ClientList(object):
 
     def remove(self, item):
         if isinstance(item, ClientInterface):
-            self.__items.append(item)
+            self.__items.remove(item)
+        elif isinstance(item, socket):
+            for client in self.__items:
+                if client.socket is item:
+                    self.__items.remove(client)
+                    break
 
     def __iter__(self):
         for item in self.__items:
             yield item
+
+    def sockets(self):
+        result = []
+        for client in self.__items:
+            result.append(client.socket)
+        return result
 
 
 class Computer(object):

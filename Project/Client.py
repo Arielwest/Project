@@ -6,7 +6,7 @@ from wmi import WMI
 from time import sleep
 from win32file import CreateDirectory, DeleteFile, RemoveDirectory
 from win32process import CreateProcess, STARTUPINFO, TerminateProcess, STARTF_USESHOWWINDOW
-from win32api import OpenProcess, GetLogicalDriveStrings
+from win32api import OpenProcess, GetLogicalDriveStrings, CloseHandle
 from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS, SW_NORMAL
 import pythoncom
 from os import listdir
@@ -78,10 +78,10 @@ class Client(object):
         Opens a new process
         """
         try:
-            StartupInfo = STARTUPINFO()
-            StartupInfo.dwFlags = STARTF_USESHOWWINDOW
-            StartupInfo.wShowWindow = SW_NORMAL
-            CreateProcess(None, command, None, None, 0, NORMAL_PRIORITY_CLASS, None, None, StartupInfo)
+            startup_info = STARTUPINFO()
+            startup_info.dwFlags = STARTF_USESHOWWINDOW
+            startup_info.wShowWindow = SW_NORMAL
+            CreateProcess(None, command, None, None, 0, NORMAL_PRIORITY_CLASS, None, None, startup_info)
             result = "Opened " + command
         except:
             result = "ERROR: internal error"
@@ -100,7 +100,8 @@ class Client(object):
             try:
                 handle = OpenProcess(PROCESS_TERMINATE, False, pid)
                 TerminateProcess(handle, -1)
-                result = str(pid) + " terminated"
+                CloseHandle(handle)
+                result = pid + " terminated"
             except:
                 result = "ERROR: internal error"
         else:

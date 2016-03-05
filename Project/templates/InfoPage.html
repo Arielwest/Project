@@ -5,8 +5,8 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/MyStyle.css') }}">
     <title>Network Manager</title>
 </head>
-
-<body>
+<form method="get" action="{{ url_for('show_main_form') }}"><input id="ButtonBack" type="submit" value="Back"/></form>
+<p>{{ message }}</p>
 <p>Computer:</p>
 <table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
     <tr><th>Criteria</th><th>Data</th></tr><!-- Table Header -->
@@ -30,6 +30,10 @@
         <tr>
             <td>Processes</td>
             <td><input id="ButtonProcesses" type="submit" value="Show Processes" name="Action" /></td>
+        </tr>
+        <tr>
+            <td><input id="InputText" type="text" name="ProcessName"/></td>
+            <td><input id="ButtonOpen" type="submit" value="Open Process" name="Action"/></td>
         </tr>
     </form>
 </table>

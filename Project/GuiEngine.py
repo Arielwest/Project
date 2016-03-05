@@ -40,15 +40,20 @@ def show_main_form():
 
 @app.route('/view_computer?mac=<mac>&ip=<ip>', methods=['GET', 'POST'])
 def view_computer(mac, ip):
+    message = ""
     if request.method == 'POST':
         ip = request.form['Ip']
         mac = request.form['Mac']
         name = request.form['Host']
         function = request.form['Action'].lower().replace(' ', '_')
-        return redirect(url_for(function, mac=mac, ip=ip, name=name))
-    elif request.method == 'GET':
-        computer_data = server.computer_data(Computer(mac, ip))
-        return render_template("InfoPage.html", computer=computer_data)
+        print function
+        print request.form["ProcessName"]
+        if function == "open_process":
+            message = server.open_process(Computer(mac, ip), request.form["ProcessName"])
+        else:
+            return redirect(url_for(function, mac=mac, ip=ip, name=name))
+    computer_data = server.computer_data(Computer(mac, ip))
+    return render_template("InfoPage.html", computer=computer_data, message=message)
 
 
 @app.route('/view_files?mac=<mac>&ip=<ip>', methods=['GET', 'POST'])
@@ -74,6 +79,8 @@ def show_processes(mac, ip, name):
         function = request.form['Action']
         if function == "Terminate":
             message = server.terminate_process(computer, Process(process_name, pid, parent_id))
+        elif function == "Back":
+            return redirect(url_for("view_computer", mac=mac, ip=ip))
     process_list = server.get_processes_data(computer)
     return render_template("ProcessesPage.html", process_list=process_list, mac=mac, ip=ip, name=name, message=message)
 
