@@ -26,7 +26,7 @@ class ClientInterface(object):
     def __eq__(self, other):
         if isinstance(other, ClientInterface):
             return self.__computer.mac == self.__computer.mac
-        elif isinstance(other,  Computer):
+        elif isinstance(other, Computer):
             return self.__computer.mac == other.mac
         else:
             return False
@@ -37,9 +37,13 @@ class ClientInterface(object):
         process_list = [item[1:-1] for item in data[1:-1].split(", ")]
         self.processes = []
         for item in process_list:
-            process_parts = item.split("+")
-            process = Process(process_parts[0], process_parts[1], process_parts[2])
-            self.processes.append(process)
+            process_parts = item.split(PROCESS_PARTS_SEPARATOR)
+            try:
+                process = Process(process_parts[0], process_parts[1], process_parts[2])
+            except:
+                pass
+            else:
+                self.processes.append(process)
 
     def send(self, data):
         self.__socket.send(data)

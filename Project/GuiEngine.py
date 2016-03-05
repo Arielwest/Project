@@ -84,7 +84,7 @@ def show_processes(mac, ip, name):
 
 def main():
     webbrowser.open(FLASK_URL)
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0")
 
 if __name__ == "__main__":
     main()

@@ -116,7 +116,9 @@ class Client(object):
         self.__update_processes()
         self.__processes_lock.acquire()
         for process in self.__processes:
-            process_parts = str(process.name) + "+" + str(process.pid) + "+" + str(process.parent_id)
+            process_parts = str(process.name) + PROCESS_PARTS_SEPARATOR + str(process.pid) + PROCESS_PARTS_SEPARATOR + str(process.parent_id)
+            if "Creative" in process_parts:
+                print process_parts
             result.append(str(process_parts))
         self.__processes_lock.release()
         return str(result)
@@ -128,7 +130,7 @@ class Client(object):
         if path == EMPTY_PATH:
             files = ' '.join(GetLogicalDriveStrings().split('\000')[:-1])
         elif exists(path):
-            files = ' '.join([f for f in listdir(path)])
+            files = ' '.join([f for f in os.listdir(path)])
         else:
             files = "ERROR: no directory " + path
         return files
@@ -191,7 +193,6 @@ class Client(object):
                 except:
                     result = "ERROR"
                 self.__return_answer(result)
-
 
     def __get_data(self):
         """

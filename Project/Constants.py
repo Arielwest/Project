@@ -15,3 +15,4 @@ EMPTY_PATH = '?'
 END_LINE = '\r\n'
 BROKEN_END_LINE = '\\r\\n'
 MAC_REGULAR_EXPRESSION = b"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
+PROCESS_PARTS_SEPARATOR = "#"
