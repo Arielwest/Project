@@ -6,7 +6,6 @@
 <body>
     <p>{{ message }}</p>
     <p>File Tree for {{ name + " (" + mac + " " + ip + ")" }}:</p>
-    <a href="javascript:ddtreemenu.flatten('treemenu1', 'expand')">Expand All</a> | <a href="javascript:ddtreemenu.flatten('treemenu1', 'contact')">Collapse All</a>
 
     <ul id="treemenu1" class="treeview">
         {%- for item in tree.children recursive %}

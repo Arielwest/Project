@@ -38,11 +38,12 @@ class Server(object):
         database = self.__database.read()
         # Loop for updating the state of the computer
         for computer in database:
-            computer.active = self.search(current_arp, computer.ip)
+            if computer in current_arp:
+                computer.active = True
             self.__database.update_state(computer)
         # Loop for updating the database
         for computer in current_arp:
-            if not self.search(database, computer.ip):
+            if computer not in database:
                 self.__database.add_row(computer)
                 database = self.__database.read()
         self.__print("Database updated.")

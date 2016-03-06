@@ -31,7 +31,7 @@ class Client(object):
             "CreateProcess": self.__create_process,
             "TerminateProcess": self.__terminate_process,
             "UpdateProcesses": self.__send_processes,
-            "UpdateFiles": self.__make_tree
+            "UpdateFiles": self.__update_files
         }
 
     def __create_file(self, path, name):
@@ -122,18 +122,6 @@ class Client(object):
             result.append(str(process_parts))
         self.__processes_lock.release()
         return str(result)
-
-    def __files_in(self, path):
-        """
-        Returns whats is inside that file
-        """
-        if path == EMPTY_PATH:
-            files = ' '.join(GetLogicalDriveStrings().split('\000')[:-1])
-        elif exists(path):
-            files = ' '.join([f for f in os.listdir(path)])
-        else:
-            files = "ERROR: no directory " + path
-        return files
 
     def __print(self, data):
         print data
@@ -250,8 +238,12 @@ class Client(object):
         files = GetLogicalDriveStrings().split('\000')[:-1]
         result = dict(name=self.__name, children=[])
         for path in files:
-            tree = self.__make_tree(path)
-            result['children'].append(tree)
+            try:
+                tree = self.__make_tree(path)
+            except:
+                pass
+            else:
+                result['children'].append(tree)
         return pickle.dumps(result)
 
     def __make_tree(self, path):

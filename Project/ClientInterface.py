@@ -78,6 +78,7 @@ class ClientInterface(object):
             result = pickle.loads(result)
             return result
 
+
 class ClientList(object):
     def __init__(self):
         self.__items = []
