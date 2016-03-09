@@ -88,16 +88,20 @@ def show_processes(mac, ip, name):
 def wake_on_lan(mac, ip, action):
     message = ""
     if request.method == 'POST':
-        hour = request.form['hour']
-        minute = request.form['minute']
-        second = request.form['second']
         active = action == 'shutdown'
-        try:
-            server.do_action(Computer(mac, ip, active), hour, minute, second, action)
-        except:
-            message = "Error: Time wasn't inserted correctly."
-        else:
+        if 'now' in request.form['Go']:
+            server.do_action_now(Computer(mac, ip, active), action)
             return redirect(url_for('show_main_form'))
+        else:
+            hour = request.form['hour']
+            minute = request.form['minute']
+            second = request.form['second']
+            try:
+                server.do_action(Computer(mac, ip, active), hour, minute, second, action)
+            except:
+                message = "Error: Time wasn't inserted correctly."
+            else:
+                return redirect(url_for('show_main_form'))
     return render_template("WakeOnLan.html", mac=mac, ip=ip, action=action, message=message)
 
 

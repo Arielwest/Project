@@ -15,7 +15,6 @@ class ClientInterface(object):
             self.__computer = computer
             self.name = gethostbyaddr(computer.ip)[0]
             self.processes = []
-            self.update_processes()
 
     def get_mac(self):
         return self.__computer.mac
@@ -61,7 +60,7 @@ class ClientInterface(object):
         return data
 
     def terminate(self, process):
-        if isinstance(process, Process) and process in self.processes:
+        if isinstance(process, Process):
             self.send("TerminateProcess " + process.pid)
             result = self.receive()
             return result
@@ -150,7 +149,7 @@ class Computer(object):
 
     def shutdown(self):
         if self.active:
-            shutdown(self.ip)
+            shutdown(self.ip, "This computer will be shud down by the network manager.", 5)
             self.active = False
         else:
             raise NameError

@@ -30,18 +30,22 @@ def shutdown(host=None, msg=None, timeout=0, force=1, reboot=0):
     """
     Shutdown a computer
     """
-    print host
     host = gethostbyaddr(host)[0]
-    privilege1 = LookupPrivilegeValue(host, SE_SHUTDOWN_NAME)
-    privilege2 = LookupPrivilegeValue(host, SE_REMOTE_SHUTDOWN_NAME)
-    new_state = [(privilege1, SE_PRIVILEGE_ENABLED), (privilege2, SE_PRIVILEGE_ENABLED)]
-    token = OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS)
-    AdjustTokenPrivileges(token, False, new_state)
-    InitiateSystemShutdown(host, msg, timeout, force, reboot)
+    try:
+        privilege1 = LookupPrivilegeValue(host, SE_SHUTDOWN_NAME)
+        privilege2 = LookupPrivilegeValue(host, SE_REMOTE_SHUTDOWN_NAME)
+    except:
+        return "Error"
+    else:
+        new_state = [(privilege1, SE_PRIVILEGE_ENABLED), (privilege2, SE_PRIVILEGE_ENABLED)]
+        token = OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS)
+        AdjustTokenPrivileges(token, False, new_state)
+        InitiateSystemShutdown(host, msg, timeout, force, reboot)
+        return "Done"
 
 '''
 def main():
-    wake_on_lan("10-60-4B-6B-6C-CF")
+    wake_on_lan("10:60:4B:6B:6C:CF")
     # shutdown("34V7-07", "This computer will be shut down by the network manager", 5)
 
 if __name__ == "__main__":

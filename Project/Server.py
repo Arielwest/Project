@@ -39,9 +39,9 @@ class Server(object):
         database = self.__database.read()
         # Loop for updating the state of the computer
         for computer in database:
-            if computer in current_arp:
-                computer.active = True
-            self.__database.update_state(computer)
+            if computer not in current_arp:
+                computer.active = False
+                self.__database.update_state(computer)
         # Loop for updating the database
         for computer in current_arp:
             if computer not in database:
@@ -92,11 +92,15 @@ class Server(object):
             pythoncom.CoInitialize()
             current_arp = NetMap.map()
             pythoncom.CoUninitialize()
-            data = self.__database.read()
+            database = self.__database.read()
+            for computer in database:
+                if computer not in current_arp:
+                    computer.active = False
+                    self.__database.update_state(computer)
             for computer in current_arp:
-                if computer not in data:
+                if computer not in database:
                     self.__database.add_row(computer)
-                    data = self.__database.read()
+                    database = self.__database.read()
 
     def __print(self, data):
         print data
@@ -112,9 +116,19 @@ class Server(object):
                     wait_thread.start()
                     return
 
+    def do_action_now(self, computer, action):
+        if isinstance(computer, Computer):
+            for other_computer in self.__database.read():
+                if other_computer == computer:
+                    self.__wait_to_action(0, action, computer)
+                    return
+
     def __wait_to_action(self, time_to_wait, action, computer):
         sleep(time_to_wait)
         if action == "shutdown":
+            client = self.__find_client(computer)
+            if isinstance(client, ClientInterface):
+                self._connected_clients.remove(client)
             computer.shutdown()
         else:
             computer.wake_up()

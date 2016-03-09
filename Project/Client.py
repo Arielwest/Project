@@ -23,8 +23,6 @@ class Client(object):
         self.__mac = get_mac()
         self.__name = socket.gethostname()
         self.__processes = []
-        self.__processes_lock = Lock()
-        self.__update_processes()
         self.handle_functions = {
             "CreateFile": self.__create_file,
             "DeleteFile": self.__delete_file,
@@ -98,14 +96,14 @@ class Client(object):
                 break
         if process_exists:
             try:
-                handle = OpenProcess(PROCESS_TERMINATE, False, pid)
+                handle = OpenProcess(PROCESS_TERMINATE, False, int(pid))
                 TerminateProcess(handle, -1)
                 CloseHandle(handle)
                 result = pid + " terminated"
             except:
                 result = "ERROR: internal error"
         else:
-            result = "ERROR: no process " + str(pid)
+            result = "ERROR: no process " + pid
         return result
 
     def __send_processes(self):
@@ -114,13 +112,11 @@ class Client(object):
         """
         result = []
         self.__update_processes()
-        self.__processes_lock.acquire()
         for process in self.__processes:
             process_parts = str(process.name) + PROCESS_PARTS_SEPARATOR + str(process.pid) + PROCESS_PARTS_SEPARATOR + str(process.parent_id)
             if "Creative" in process_parts:
                 print process_parts
             result.append(str(process_parts))
-        self.__processes_lock.release()
         return str(result)
 
     def __print(self, data):
@@ -134,9 +130,6 @@ class Client(object):
         is_server = self.__find_server()
         if is_server:
             print "connected to server."
-            update_thread = Thread(target=self.__update_processes_routine)
-            update_thread.setDaemon(True)
-            update_thread.start()
             self.__run()
         else:
             print "server not found."
@@ -209,27 +202,15 @@ class Client(object):
             num = "".join([str(j - j) for j in xrange(3 - len(num))]) + num
             self.__socket.send(num + "@" + to_send[i])
 
-    def __update_processes_routine(self):
-        """
-        This is run in a thread, activates update_processes any PROCESS_ENUMERATE_SLEEP seconds
-        """
-        while True:
-            pythoncom.CoInitialize()
-            self.__update_processes()
-            pythoncom.CoUninitialize()
-            sleep(PROCESS_ENUMERATE_SLEEP)
-
     def __update_processes(self):
         """
         Enumerates all running processes
         """
         wmi = WMI()
-        self.__processes_lock.acquire()
         self.__processes = []
         for process in wmi.Win32_Process():
             process_object = Process(process.Name, str(process.ProcessID), str(process.ParentProcessID))
             self.__processes.append(process_object)
-        self.__processes_lock.release()
 
     def __update_files(self):
         """
