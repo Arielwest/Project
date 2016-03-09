@@ -7,6 +7,7 @@ from time import sleep
 import pythoncom
 from select import select
 from ClientInterface import ClientInterface, ClientList, Computer
+from datetime import time, datetime
 
 
 class Server(object):
@@ -100,21 +101,24 @@ class Server(object):
     def __print(self, data):
         print data
 
-    def wake_up(self, computer):
+    def do_action(self, computer, hour, minute, second, action):
         if isinstance(computer, Computer):
             for other_computer in self.__database.read():
                 if other_computer == computer:
-                    computer.wake_up()
-                    self.__database.update_state(computer)
+                    now = datetime.now()
+                    my_time = datetime(now.year, now.month, now.day, int(hour), int(minute), int(second))
+                    to_wait = (my_time - now).seconds
+                    wait_thread = Thread(target=self.__wait_to_action, args=(to_wait, action, computer))
+                    wait_thread.start()
                     return
 
-    def shutdown(self, computer):
-        if isinstance(computer, Computer):
-            for other_computer in self.__database.read():
-                if other_computer == computer:
-                    computer.shutdown()
-                    self.__database.update_state(computer)
-                    return
+    def __wait_to_action(self, time_to_wait, action, computer):
+        sleep(time_to_wait)
+        if action == "shutdown":
+            computer.shutdown()
+        else:
+            computer.wake_up()
+        self.__database.update_state(computer)
 
     def make_computers_dictionary(self):
         dictionary = self.__database.make_dictionary()

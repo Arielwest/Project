@@ -6,6 +6,7 @@ from Server import Server
 from threading import Thread
 from ClientInterface import Computer
 from Process import Process
+from datetime import datetime
 
 app = Flask(__name__)
 server = Server()
@@ -24,15 +25,16 @@ def show_main_form():
         if request.method == 'POST':
             ip = request.form['Ip']
             mac = request.form['Mac']
-            active = request.form['Status'] == "online" or request.form['Status'] == u'online'
             if request.form['Action'] == "More":
                 url = url_for("view_computer", mac=mac, ip=ip)
                 return redirect(url)
             else:
-                if not active:
-                    server.wake_up(Computer(mac, ip, False))
+                action = request.form['Action']
+                if action == 'WakeOnLAN':
+                    action = 'wake up'
                 else:
-                    server.shutdown(Computer(mac, ip, True))
+                    action = 'shutdown'
+                return redirect(url_for('wake_on_lan', mac=mac, ip=ip, action=action))
         computers_dict = server.make_computers_dictionary()
         computers = [dict(IP=ip,MAC=mac, STATUS=state, INDEX=index, CONNECTED=connected) for ip, mac, state, index, connected in izip(computers_dict['IP'], computers_dict['MAC'], computers_dict['STATUS'], computers_dict['INDEX'], computers_dict['CONNECTED'])]
         return render_template("MainPage.html", computers=computers)
@@ -82,9 +84,26 @@ def show_processes(mac, ip, name):
     return render_template("ProcessesPage.html", process_list=process_list, mac=mac, ip=ip, name=name, message=message)
 
 
+@app.route('/wake_on_lan?mac=<mac>&ip=<ip>&action=<action>', methods=['GET', 'POST'])
+def wake_on_lan(mac, ip, action):
+    message = ""
+    if request.method == 'POST':
+        hour = request.form['hour']
+        minute = request.form['minute']
+        second = request.form['second']
+        active = action == 'shutdown'
+        try:
+            server.do_action(Computer(mac, ip, active), hour, minute, second, action)
+        except:
+            message = "Error: Time wasn't inserted correctly."
+        else:
+            return redirect(url_for('show_main_form'))
+    return render_template("WakeOnLan.html", mac=mac, ip=ip, action=action, message=message)
+
+
 def main():
     webbrowser.open(FLASK_URL)
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", debug=False)
 
 if __name__ == "__main__":
     main()

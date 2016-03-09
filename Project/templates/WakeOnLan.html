@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/MyStyle.css') }}">
+    <title>Network Manager</title>
+</head>
+<body>
+<form method="get" action="{{ url_for('show_main_form') }}"><input id="ButtonBack" type="submit" value="Back"/></form>
+<p>{{ message }}</p>
+<p>{{ action }} a computer:</p>
+<form method="post" action="{{ url_for('wake_on_lan', mac=mac, ip=ip, action=action) }}">
+    <table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
+    <tr><th>Criteria</th><th>Data</th></tr> <!-- Table Header -->
+        <tr class='even'>
+            <td>Mac Address</td>
+            <td><input class="MacText" type="text" value="{{ mac }}"  name="Mac" readonly />  </td>
+        </tr>
+        <tr>
+            <td>IP Address</td>
+            <td><input class="IpText" type="text" value="{{ ip }}"  name="Ip" readonly />  </td>
+        </tr>
+        <tr>
+            <td>Time to {{ action }}:</td>
+            <td>
+                <input class="TimeText" type="text" value="hh"  name="hour" />:
+                <input class="TimeText" type="text" value="mm"  name="minute" />:
+                <input class="TimeText" type="text" value="ss"  name="second" />
+            </td>
+    </table>
+    <input id="ButtonGo" type="submit" value="{{ action }}"/>
+</form>
+</body>
+</html>

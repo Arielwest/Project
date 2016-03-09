@@ -204,3 +204,18 @@ SPAN.td
 .ProcessText:hover {
     width: 250px;
 }
+
+.TimeText{
+    background: #333;
+    color: #ccc;
+    width: 20px;
+	height: 20px;
+    padding: 5px 10px 5px 15px;
+    border-radius: 20px;
+    box-shadow: 0 1px 0 #ccc inset;
+    transition: 500ms all ease;
+    outline: 0;
+}
+.TimeText:hover {
+    color: #fff;
+}
