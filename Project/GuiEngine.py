@@ -48,8 +48,6 @@ def view_computer(mac, ip):
         mac = request.form['Mac']
         name = request.form['Host']
         function = request.form['Action'].lower().replace(' ', '_')
-        print function
-        print request.form["ProcessName"]
         if function == "open_process":
             message = server.open_process(Computer(mac, ip), request.form["ProcessName"])
         else:

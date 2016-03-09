@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type="text/javascript" src="{{ url_for('static', filename='stylesheets/TreeMenu.js') }}"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/TreeMenu.css') }}" /></head>
 <body>
     <p><strong>{{ message }}</strong></p>
     <p>File Tree for {{ name + " (" + mac + " " + ip + ")" }}:</p>
+    <p>{{ directory['NAME'] }}</p>
 
     <ul id="treemenu1" class="treeview">
-        {%- for item in tree.children recursive %}
-        <li>{{ item.name }}
-            {%- if item.children -%}
-            <ul>{{ loop(item.children) }}</ul>
-            {%- endif %}</li>
+        {% for item in directory['FILES'] %}
+        <li>
+            {% if item['type'] == "folder" %}
+
+            {% else %}
+
+            {% endif %}
+        </li>
         {%- endfor %}
     </ul>
 
-    <script type="text/javascript">
-        //ddtreemenu.createTree(treeid, enablepersist, opt_persist_in_days (default is 1))
-        ddtreemenu.createTree("treemenu1", true)
-    </script>
 </body>
 </html>
