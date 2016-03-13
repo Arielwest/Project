@@ -7,7 +7,8 @@ from time import sleep
 import pythoncom
 from select import select
 from ClientInterface import ClientInterface, ClientList, Computer
-from datetime import time, datetime
+from datetime import datetime
+import subprocess
 
 
 class Server(object):
@@ -39,7 +40,10 @@ class Server(object):
         database = self.__database.read()
         # Loop for updating the state of the computer
         for computer in database:
-            if computer not in current_arp:
+            if computer.ip == gethostbyname(gethostname()):
+                computer.active = True
+                self.__database.update_state(computer)
+            elif computer not in current_arp:
                 computer.active = False
                 self.__database.update_state(computer)
         # Loop for updating the database
@@ -94,7 +98,10 @@ class Server(object):
             pythoncom.CoUninitialize()
             database = self.__database.read()
             for computer in database:
-                if computer not in current_arp:
+                if computer.ip == gethostbyname(gethostname()):
+                    computer.active = True
+                    self.__database.update_state(computer)
+                elif computer not in current_arp:
                     computer.active = False
                     self.__database.update_state(computer)
             for computer in current_arp:
@@ -171,11 +178,30 @@ class Server(object):
             result = client.open_process(command)
             return result
 
-    def files(self, computer):
+    def get_file(self, computer, directory):
         client = self.__find_client(computer)
         if isinstance(client, ClientInterface):
-            result = client.send_files()
+            result = client.send_files(directory)
+            return {
+                'NAME': directory,
+                'ITEMS': result
+            }
+
+    def delete_file(self, computer, directory):
+        client = self.__find_client(computer)
+        if isinstance(client, ClientInterface):
+            result = client.delete_file(directory)
             return result
+
+    def create_file(self, computer, path, name):
+        client = self.__find_client(computer)
+        if isinstance(client, ClientInterface):
+            result = client.create_file(path, name)
+            return result
+
+
+    def remote_desktop(self, computer):
+        subprocess.Popen(['mstsc', '/v:' + computer.ip])
 
 
 def main():

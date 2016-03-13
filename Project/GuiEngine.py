@@ -6,7 +6,6 @@ from Server import Server
 from threading import Thread
 from ClientInterface import Computer
 from Process import Process
-from datetime import datetime
 
 app = Flask(__name__)
 server = Server()
@@ -28,6 +27,8 @@ def show_main_form():
             if request.form['Action'] == "More":
                 url = url_for("view_computer", mac=mac, ip=ip)
                 return redirect(url)
+            elif request.form['Action'] == "Remote Desktop":
+                server.remote_desktop(Computer(mac, ip))
             else:
                 action = request.form['Action']
                 if action == 'WakeOnLAN':
@@ -50,19 +51,37 @@ def view_computer(mac, ip):
         function = request.form['Action'].lower().replace(' ', '_')
         if function == "open_process":
             message = server.open_process(Computer(mac, ip), request.form["ProcessName"])
+        elif function == 'show_files':
+            return redirect(url_for(function, mac=mac, ip=ip, name=name, path=str(EMPTY_PATH)))
         else:
             return redirect(url_for(function, mac=mac, ip=ip, name=name))
     computer_data = server.computer_data(Computer(mac, ip))
     return render_template("InfoPage.html", computer=computer_data, message=message)
 
 
-@app.route('/view_files?mac=<mac>&ip=<ip>&name=<name>', methods=['GET', 'POST'])
-def show_files(mac, ip, name):
+@app.route('/view_files?mac=<mac>&ip=<ip>&name=<name>&path=<path>', methods=['GET', 'POST'])
+def show_files(mac, ip, name, path):
     message = ""
     if request.method == 'POST':
-        pass
-    tree = server.files(Computer(mac, ip))
-    return render_template("FilesPage.html", tree=tree, mac=mac, ip=ip, name=name, message=message)
+        action = request.form['Action']
+        if action == 'Open':
+            if path == EMPTY_PATH:
+                path = ""
+            else:
+                path += '\\'
+            return redirect(url_for('show_files', mac=mac, ip=ip, name=name, path=path + request.form['FileName']))
+        elif action == 'Create':
+            message = server.create_file(Computer(mac, ip), path, request.form['FileName'])
+        else:
+            if path.endwith('\\'):
+                message = server.delete_file(Computer(mac, ip), path + request.form['FileName'])
+            else:
+                message = server.delete_file(Computer(mac, ip), path + '\\' + request.form['FileName'])
+    directory = server.get_file(Computer(mac, ip), path)
+    if "ERROR" in directory['ITEMS']:
+        message = directory['ITEMS']
+        directory['ITEMS'] = []
+    return render_template("FilesPage.html", directory=directory, mac=mac, ip=ip, name=name, message=message)
 
 
 @app.route('/view_processes?mac=<mac>&ip=<ip>&name=<name>', methods=['GET', 'POST'])

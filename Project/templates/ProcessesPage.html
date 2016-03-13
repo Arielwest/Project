@@ -18,8 +18,7 @@
             <td><input class="ProcessText" type="text" value="{{ process['NAME'] }}"  name="name" readonly /></td>
             <td><input class="StatusText" type="text" value="{{ process['PID'] }}" name="pid" readonly /></td>
             <td><input class="StatusText" type="text" value="{{ process['PARENT_ID'] }}" name="parent_id" readonly /></td>
-            <td><input id="ButtonTerminate" type="submit" value="Terminate" name="Action" />
-        </td>
+            <td><input id="ButtonTerminate" type="submit" value="Terminate" name="Action" /></td>
         </tr>
     </form>
     {% endfor %}

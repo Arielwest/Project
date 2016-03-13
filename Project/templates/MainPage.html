@@ -18,15 +18,17 @@
             <td><input class="IpText" type="text" value="{{ row['IP'] }}"  name="Ip" readonly />  </td>
             <td><input class="MacText" type="text" value="{{ row['MAC'] }}" name="Mac" readonly />  </td>
             <td><input class="StatusText" type="text" value="{{ row['STATUS'] }}" name="Status" readonly />  </td>
-            {% if row['STATUS'] == 'offline' %}
-            <td> <input id="ButtonWOL" type="submit" value="WakeOnLAN" name="Action" />
+            <td>
+                {% if row['STATUS'] == 'offline' %}
+                <input id="ButtonWOL" type="submit" value="WakeOnLAN" name="Action" />
                 {% else %}
-            <td><input id="ButtonShutDown" type="submit" value="Shutdown" name="Action" />
-            {% endif %}
-            {% if row['CONNECTED'] == 'True'%}
-            <input id="Information" type="submit" value="More" name="Action">
-            {% endif %}
-        </td>
+                <input id="ButtonShutDown" type="submit" value="Shutdown" name="Action" />
+                {% endif %}
+                <input id="RemoteDesktop" type="submit" value="Remote Desktop" name="Action">
+                {% if row['CONNECTED'] == 'True'%}
+                <input id="Information" type="submit" value="More" name="Action">
+                {% endif %}
+            </td>
         </tr>
     </form>
     {% endfor %}

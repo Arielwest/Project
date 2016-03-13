@@ -70,12 +70,23 @@ class ClientInterface(object):
         result = self.receive()
         return result
 
-    def send_files(self):
-        self.send("UpdateFiles")
+    def send_files(self, directory):
+        self.send("GetFile " + directory)
         result = self.receive()
         if "ERROR" not in result:
-            result = pickle.loads(result)
+            result = result.split(FILE_SEPARATOR)
             return result
+        return result
+
+    def delete_file(self, path):
+        self.send("DeleteFile " + path)
+        result = self.receive()
+        return result
+
+    def create_file(self, path, name):
+        self.send("DeleteFile " + path + " " + name)
+        result = self.receive()
+        return result
 
 
 class ClientList(object):

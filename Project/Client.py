@@ -29,7 +29,7 @@ class Client(object):
             "CreateProcess": self.__create_process,
             "TerminateProcess": self.__terminate_process,
             "UpdateProcesses": self.__send_processes,
-            "UpdateFiles": self.__update_files
+            "GetFile": self.__get_file
         }
 
     def __create_file(self, path, name):
@@ -212,35 +212,17 @@ class Client(object):
             process_object = Process(process.Name, str(process.ProcessID), str(process.ParentProcessID))
             self.__processes.append(process_object)
 
-    def __update_files(self):
+    def __get_file(self, path):
         """
         Returns whats is inside that file
         """
-        files = GetLogicalDriveStrings().split('\000')[:-1]
-        result = dict(name=self.__name, children=[])
-        for path in files:
-            try:
-                tree = self.__make_tree(path)
-            except:
-                pass
-            else:
-                result['children'].append(tree)
-        return pickle.dumps(result)
-
-    def __make_tree(self, path):
-        tree = dict(name=os.path.basename(path), children=[])
-        try:
-            lst = os.listdir(path)
-        except OSError:
-            pass #ignore errors
+        if path == EMPTY_PATH:
+            files = FILE_SEPARATOR.join(GetLogicalDriveStrings().split('\000')[:-1])
+        elif exists(path):
+            files = FILE_SEPARATOR.join([f for f in os.listdir(path)])
         else:
-            for name in lst:
-                fn = os.path.join(path, name)
-                if os.path.isdir(fn):
-                    tree['children'].append(self.__make_tree(fn))
-                else:
-                    tree['children'].append(dict(name=name))
-        return tree
+            files = "ERROR: no directory " + path
+        return files
 
 
 def main():
