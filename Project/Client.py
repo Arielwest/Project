@@ -1,20 +1,27 @@
-import socket
-from uuid import getnode as get_mac
-from Constants import *
-from threading import Thread, Lock
-from wmi import WMI
-from time import sleep
-from win32file import CreateDirectory, DeleteFile, RemoveDirectory
-from win32process import CreateProcess, STARTUPINFO, TerminateProcess, STARTF_USESHOWWINDOW
-from win32api import OpenProcess, GetLogicalDriveStrings, CloseHandle
-from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS, SW_NORMAL
-import pythoncom
-import os
-from os.path import exists
-from ctypes import windll
-from select import select
-from Process import Process
-import pickle
+try:
+    import socket
+    from uuid import getnode as get_mac
+    from Constants import *
+    from threading import Thread, Lock
+    from wmi import WMI
+    from time import sleep
+    from win32file import CreateDirectory, DeleteFile, RemoveDirectory
+    from win32process import CreateProcess, STARTUPINFO, TerminateProcess, STARTF_USESHOWWINDOW
+    from win32api import OpenProcess, GetLogicalDriveStrings, CloseHandle
+    from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS, SW_NORMAL
+    import pythoncom
+    import os
+    from os.path import exists
+    from ctypes import windll
+    from select import select
+    from Process import Process
+    import pickle
+    import subprocess
+    import sys
+except ImportError:
+    pipe = subprocess.Popen([sys.executable, 'install.py'], stdin=subprocess.PIPE)
+    pipe.stdin.write('Client.py' + END_LINE)
+    exit()
 
 
 class Client(object):

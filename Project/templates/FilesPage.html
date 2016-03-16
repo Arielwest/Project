@@ -3,13 +3,17 @@
 <head>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/MyStyle.css') }}" /></head>
 <body>
-<form method="get" action="{{ url_for('view_computer', mac=mac, ip=ip, name=name) }}"><input id="ButtonBack" type="submit" value="Back"/></form>
+{% if 'Drives' in directory['NAME'] %}
+<form method="get" action="{{ url_for('view_computer', mac=mac, ip=ip, name=name) }}"><input id="ButtonBack1" type="submit" value="Back"/></form>
+{% else %}
+<form method="get" action="{{ url_for('back', mac=mac, ip=ip, name=name, path=directory['NAME']) }}"><input id="ButtonBack2" type="submit" value="Back"/></form>
+{% endif %}
 <p><strong>{{ message }}</strong></p>
 <p><strong>File Tree for {{ name + " (" + mac + " " + ip + ")" }}:</strong></p>
 <p>{{ directory['NAME'] }}</p>
 {% if directory['ITEMS'] %}
 <p>*If you want to create new file, write its name instead the 'new folder' and don't forget the suffix</p>
-<p>"example: new.txt"</p>
+<p>example: new.txt</p>
 <table cellpadding="0" cellspacing="0">
     <tr><th>File Name</th><th>options</th></tr>
     {% for item in directory['ITEMS'] %}
@@ -25,7 +29,7 @@
         </tr>
     </form>
     {% endfor %}
-    {% if '\\' in directory['ITEMS'][0] %}
+    {% if ':' not in directory['ITEMS'][0] %}
     <form method="post" action="{{ url_for('show_files', mac=mac, ip=ip, name=name, path=directory['NAME']) }}">
         <tr class="even">
             <td><input class="ProcessText" type="text" value="new folder" name="FileName"/></td>

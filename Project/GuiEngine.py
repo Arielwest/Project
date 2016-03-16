@@ -122,9 +122,17 @@ def wake_on_lan(mac, ip, action):
     return render_template("WakeOnLan.html", mac=mac, ip=ip, action=action, message=message)
 
 
+@app.route('/go_back?mac=<mac>&ip=<ip>&name=<name>&path=<path>')
+def back(mac, ip, name, path):
+    new_path = '\\'.join(path.split('\\')[:-1])
+    if not new_path:
+        new_path = EMPTY_PATH
+    return redirect(url_for('show_files', mac=mac, ip=ip, name=name, path=new_path))
+
+
 def main():
     webbrowser.open(FLASK_URL)
-    app.run(host="0.0.0.0", debug=False)
+    app.run(host="0.0.0.0", debug=True)
 
 if __name__ == "__main__":
     main()

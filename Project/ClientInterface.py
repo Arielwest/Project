@@ -84,7 +84,7 @@ class ClientInterface(object):
         return result
 
     def create_file(self, path, name):
-        self.send("DeleteFile " + path + " " + name)
+        self.send("CreateFile " + path + " " + name)
         result = self.receive()
         return result
 
