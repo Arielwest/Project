@@ -11,6 +11,7 @@ for module in MODULES_TO_INSTALL:
     subprocess.call([pip_path, "install", module])
     print module + " installed"
 print "installation finished!"
-input_data = sys.stdin.readline()
-if input_data:
+check = sys.stdin.readable()
+if check:
+    input_data = sys.stdin.readline()
     subprocess.Popen([sys.executable, input_data])
