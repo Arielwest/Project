@@ -1,12 +1,30 @@
-table.scroll {
-    /* width: 100%; */ /* Optional */
-    /* border-collapse: collapse; */
-    border-spacing: 0;
-    border: 2px solid black;
+table {
+	background: #f5f5f5;
+	border-collapse: separate;
+	box-shadow: inset 0 1px 0 #fff;
+	font-size: 12px;
+	line-height: 24px;
+	margin: 30px auto;
+	text-align: left;
+	width: 800px;
 }
 
-table.scroll tbody,
-table.scroll thead { display: block; }
+th {
+	background: url(http://jackrugile.com/images/misc/noise-diagonal.png), linear-gradient(#777, #444);
+	border-left: 1px solid #555;
+	border-right: 1px solid #777;
+	border-top: 1px solid #555;
+	border-bottom: 1px solid #333;
+	box-shadow: inset 0 1px 0 #999;
+	color: #fff;
+  font-weight: bold;
+	padding: 10px 15px;
+	position: relative;
+	text-shadow: 0 1px 0 #000;
+}
+
+table tbody,
+table thead { display: block; }
 
 thead tr th {
     height: 40px;
@@ -14,7 +32,7 @@ thead tr th {
     /* text-align: left; */
 }
 
-table.scroll tbody {
+table tbody {
     height: 650px;
     overflow-y: auto;
     overflow-x: hidden;

@@ -1,11 +1,12 @@
-import os
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
 
-@app.route('/')
-def dirtree():
+@app.route('/', methods=['GET', 'POST'])
+def foo():
+    if request.method == 'POST':
+        print request.form.getlist('check')
     return render_template('try.html')
 
 
