@@ -76,7 +76,12 @@ class Server(object):
                     client_socket, client_address = self.__main_socket.accept()
                     for computer in self.__database.read():
                         if computer.ip == client_address[0]:
-                            self._connected_clients.append(ClientInterface(client_socket, computer))
+                            new_client_thread = Thread(target=self.new_client, args=[client_socket, computer])
+                            new_client_thread.setDaemon(True)
+                            new_client_thread.start()
+
+    def new_client(self, client_socket, computer):
+        self._connected_clients.append(ClientInterface(client_socket, computer))
 
     def __broadcast_announce(self):
         """

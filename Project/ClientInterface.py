@@ -3,7 +3,7 @@ from socket import gethostbyaddr
 from WakeOnLan import wake_on_lan, shutdown
 from Process import Process
 from socket import socket
-import pickle
+from Cipher import Cipher
 
 
 class ClientInterface(object):

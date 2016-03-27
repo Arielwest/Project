@@ -10,6 +10,7 @@ for module in MODULES_TO_INSTALL:
     print "installing " + module
     subprocess.call([pip_path, "install", module])
     print module + " installed"
+subprocess.Popen(['static\\pycrypto-2.6.win32-py2.6.exe'])
 print "installation finished!"
 check = sys.stdin.readable()
 if check:

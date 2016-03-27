@@ -12,6 +12,7 @@ table {
 	margin: 30px auto;
 	text-align: left;
 	width: table_width;
+	float:left;
 
 }
 
