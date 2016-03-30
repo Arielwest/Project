@@ -22,14 +22,18 @@ class Server(object):
         self.running = False
         self.starting = False
         self._connected_clients = ClientList()
-        self.__signature = Cipher.crate_signature()
-        self.public_key = Cipher()
+        self.__signature = None
+        self.public_key = None
 
     def start(self):
         """
         Starts the server
         """
+        if self.starting or self.running:
+            raise NameError('Already running or starting...')
         self.starting = True
+        self.__signature = Cipher.crate_signature()
+        self.public_key = Cipher()
         self.__print("Updating database...")
         pythoncom.CoInitialize()
         current_arp = NetMap.map()
@@ -80,7 +84,15 @@ class Server(object):
     def new_client(self, client_socket, computer):
         result = self.key_exchange(client_socket)
         if isinstance(result, Cipher):
-            self._connected_clients.append(ClientInterface(client_socket, computer, result))
+            self._connected_clients.append(ClientInterface(client_socket, computer, result, self.sign, self.public_encrypt))
+
+    def sign(self, data):
+        if isinstance(self.__signature, Cipher):
+            return self.__signature.encrypt(data)
+
+    def public_encrypt(self, data):
+        if isinstance(self.public_key, Cipher):
+            return self.public_key.decrypt(data)
 
     def key_exchange(self, sock):
         data = sock.recv(BUFFER_SIZE)
@@ -89,7 +101,7 @@ class Server(object):
         if Cipher.hash(key) == his_hashed_key:
             key = Cipher.unpack(key)
             to_send = self.__signature.public_key().pack() + IN_PACK_SEPARATOR + Cipher.hash(self.__signature.public_key().pack())
-            to_send = key.encrypt(to_send)
+            to_send = key.encrypt(to_send) + IN_PACK_SEPARATOR
             sock.send(to_send)
             return key
 

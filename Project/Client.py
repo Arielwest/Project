@@ -170,6 +170,8 @@ class Client(object):
         to_send = self.__server_public_key.encrypt(to_send)
         self.__socket.send(to_send)
         signature = self.__socket.recv(BUFFER_SIZE)
+        while not signature.endswith(IN_PACK_SEPARATOR):
+            signature += self.__socket.recv(BUFFER_SIZE)
         signature = self.__key.decrypt(signature)
         signature, hashed = signature.split(IN_PACK_SEPARATOR)
         if hashed == Cipher.hash(signature):
@@ -211,14 +213,29 @@ class Client(object):
             if data == "":
                 self.__print("Lost connection with server.")
                 exit()
-            return data
+            return self.__decrypt(data)
         return ""
+
+    def __encrypt(self, data):
+        result = self.__key.encrypt(data) + IN_PACK_SEPARATOR + Cipher.hash(data)
+        result = self.__server_public_key.encrypt(result)
+        return result
+
+    def __decrypt(self, data):
+        data, hashed = self.__server_signature.decrypt(data).split(IN_PACK_SEPARATOR)
+        data = self.__key.decrypt(data)
+        if Cipher.hash(data) == hashed:
+            return data
+        else:
+            raise EnvironmentError("Server Unauthorised")
+
 
     def __return_answer(self, data):
         """
         sends back the result
         """
-        to_send = [data[i:i + BUFFER_SIZE - 4] for i in xrange(0, len(data), BUFFER_SIZE)]
+        to_send = self.__encrypt(data)
+        to_send = [to_send[i:i + BUFFER_SIZE - 4] for i in xrange(0, len(to_send), BUFFER_SIZE)]
         self.__socket.send(str(len(to_send)))
         for i in xrange(len(to_send)):
             num = str(i)

@@ -39,6 +39,8 @@ class Cipher(object):
         elif self.asymmetrical:
             cipher_data = self.__cipher_object.encrypt(data, 1)[0]
         else:
+            to_add = 16 - (len(data) % 16)
+            data += ' ' * to_add
             cipher_data = self.__cipher_object.encrypt(data)
         return cipher_data.encode('base64')
 
@@ -50,6 +52,8 @@ class Cipher(object):
         else:
             data = data.decode('base64')
             decrypted = self.__cipher_object.decrypt(data)
+            if ' ' in decrypted:
+                decrypted = decrypted.rstrip(' ')
         return decrypted
 
     def public_key(self):
@@ -57,7 +61,9 @@ class Cipher(object):
             return Cipher(key=self)
 
     def pack(self):
-        return pickle.dumps(self).encode('base64')
+        if self.asymmetrical:
+            return '1' + pickle.dumps(self).encode('base64')
+        return '0' + self.__key
 
     @staticmethod
     def random_key():
@@ -65,7 +71,10 @@ class Cipher(object):
 
     @staticmethod
     def unpack(data):
-        return pickle.loads(data.decode('base64'))
+        asymmetrical = data[0] == '1'
+        if not asymmetrical:
+            return Cipher(key=data[1:])
+        return pickle.loads(data[1:].decode('base64'))
 
     @staticmethod
     def crate_signature():

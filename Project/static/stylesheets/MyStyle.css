@@ -76,7 +76,7 @@ table thead { display: block; }
 thead tr th {
     height: 40px;
     line-height: 30px;
-    /* text-align: left; */
+    width: 50%;
 }
 
 table tbody {
