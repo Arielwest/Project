@@ -18,7 +18,8 @@ try:
     import pickle
     import subprocess
     import sys
-except ImportError:
+    from Cipher import Cipher
+except:
     pipe = subprocess.Popen([sys.executable, 'install.py'], stdin=subprocess.PIPE)
     pipe.stdin.write('Client.py' + END_LINE)
     exit()
@@ -30,6 +31,8 @@ class Client(object):
         self.__mac = get_mac()
         self.__name = socket.gethostname()
         self.__processes = []
+        self.__key = Cipher.random_key()
+        self.__server_public_key = None
         self.handle_functions = {
             "CreateFile": self.__create_file,
             "DeleteFile": self.__delete_file,
@@ -154,11 +157,24 @@ class Client(object):
             return False
         else:
             server_address = address[0]
-            if message == SERVER_ANNOUNCE_MESSAGE:
+            key, hash_message = message.split(IN_PACK_SEPARATOR)
+            if hash_message == Cipher.hash(SERVER_ANNOUNCE_MESSAGE):
                 status = self.__socket.connect_ex((server_address, SERVER_PORT))
                 if status == 0:
-                    return True
+                    self.__server_public_key = Cipher.unpack(key)
+                    return self.__key_exchange()
             return False
+
+    def __key_exchange(self):
+        to_send = self.__key.pack() + IN_PACK_SEPARATOR + Cipher.hash(self.__key.pack())
+        to_send = self.__server_public_key.encrypt(to_send)
+        self.__socket.send(to_send)
+        signature = self.__socket.recv(BUFFER_SIZE)
+        signature = self.__key.decrypt(signature)
+        signature, hashed = signature.split(IN_PACK_SEPARATOR)
+        if hashed == Cipher.hash(signature):
+            self.__server_signature = Cipher.unpack(signature)
+            return True
 
     def __run(self):
         """

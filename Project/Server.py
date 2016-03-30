@@ -9,6 +9,7 @@ from select import select
 from ClientInterface import ClientInterface, ClientList, Computer
 from datetime import datetime
 import subprocess
+from Cipher import Cipher
 
 
 class Server(object):
@@ -21,12 +22,8 @@ class Server(object):
         self.running = False
         self.starting = False
         self._connected_clients = ClientList()
-
-    def search(self, comp_list, ip):
-        for comp in comp_list:
-            if comp.ip == ip:
-                return True
-        return False
+        self.__signature = Cipher.crate_signature()
+        self.public_key = Cipher()
 
     def start(self):
         """
@@ -81,15 +78,30 @@ class Server(object):
                             new_client_thread.start()
 
     def new_client(self, client_socket, computer):
-        self._connected_clients.append(ClientInterface(client_socket, computer))
+        result = self.key_exchange(client_socket)
+        if isinstance(result, Cipher):
+            self._connected_clients.append(ClientInterface(client_socket, computer, result))
+
+    def key_exchange(self, sock):
+        data = sock.recv(BUFFER_SIZE)
+        key = self.public_key.decrypt(data)
+        key, his_hashed_key = key.split(IN_PACK_SEPARATOR)
+        if Cipher.hash(key) == his_hashed_key:
+            key = Cipher.unpack(key)
+            to_send = self.__signature.public_key().pack() + IN_PACK_SEPARATOR + Cipher.hash(self.__signature.public_key().pack())
+            to_send = key.encrypt(to_send)
+            sock.send(to_send)
+            return key
+
 
     def __broadcast_announce(self):
         """
         Runs in a thread. Announces the server's existence in the network
         """
+        message = self.public_key.public_key().pack() + IN_PACK_SEPARATOR + Cipher.hash(SERVER_ANNOUNCE_MESSAGE)
         self.__announce_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
         while True:
-            self.__announce_socket.sendto(SERVER_ANNOUNCE_MESSAGE, ("<broadcast>", BROADCAST_PORT))
+            self.__announce_socket.sendto(message, ("<broadcast>", BROADCAST_PORT))
             sleep(ANNOUNCE_SLEEP_TIME)
 
     def __network_scan(self):

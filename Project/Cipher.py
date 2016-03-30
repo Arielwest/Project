@@ -1,6 +1,7 @@
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
 from Crypto.Hash import MD5
+from Crypto.Random import get_random_bytes
 import pickle
 
 RSA_KEY_LENGTH = 1024
@@ -57,6 +58,10 @@ class Cipher(object):
 
     def pack(self):
         return pickle.dumps(self).encode('base64')
+
+    @staticmethod
+    def random_key():
+        return Cipher(get_random_bytes(32))
 
     @staticmethod
     def unpack(data):

@@ -7,8 +7,9 @@ from Cipher import Cipher
 
 
 class ClientInterface(object):
-    def __init__(self, sock, computer):
+    def __init__(self, sock, computer, key):
         self.__socket = sock
+        self.__key = key
         if not isinstance(computer, Computer):
             raise ValueError
         else:
@@ -45,7 +46,7 @@ class ClientInterface(object):
                 self.processes.append(process)
 
     def send(self, data):
-        self.__socket.send(data)
+        self.__socket.send(self.__key.encrypt(data))
 
     def receive(self):
         parts = {}
@@ -53,7 +54,7 @@ class ClientInterface(object):
         for i in xrange(int(length)):
             data = self.__socket.recv(BUFFER_SIZE)
             data = data.split('@')
-            parts[int(data[0])] = '@'.join(data[1:])
+            parts[int(data[0])] = self.__key.decrypt('@'.join(data[1:]))
         data = ""
         for i in xrange(int(length)):
             data += parts[i]
