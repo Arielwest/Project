@@ -84,13 +84,13 @@ class Server(object):
     def new_client(self, client_socket, computer):
         result = self.key_exchange(client_socket)
         if isinstance(result, Cipher):
-            self._connected_clients.append(ClientInterface(client_socket, computer, result, self.sign, self.public_encrypt))
+            self._connected_clients.append(ClientInterface(client_socket, computer, result, self.sign, self.public_decrypt))
 
     def sign(self, data):
         if isinstance(self.__signature, Cipher):
             return self.__signature.encrypt(data)
 
-    def public_encrypt(self, data):
+    def public_decrypt(self, data):
         if isinstance(self.public_key, Cipher):
             return self.public_key.decrypt(data)
 
@@ -195,10 +195,10 @@ class Server(object):
             processes_list = [dict(NAME=process.name, PID=process.pid, PARENT_ID=process.parent_id) for process in client.processes]
             return processes_list
 
-    def terminate_process(self, computer, process):
+    def terminate_process(self, computer, processes):
         client = self.__find_client(computer)
         if isinstance(client, ClientInterface):
-            result = client.terminate(process)
+            result = client.terminate(processes)
             return result
 
     def open_process(self, computer, command):

@@ -124,8 +124,6 @@ class Client(object):
         self.__update_processes()
         for process in self.__processes:
             process_parts = str(process.name) + PROCESS_PARTS_SEPARATOR + str(process.pid) + PROCESS_PARTS_SEPARATOR + str(process.parent_id)
-            if "Creative" in process_parts:
-                print process_parts
             result.append(str(process_parts))
         return str(result)
 
@@ -229,17 +227,17 @@ class Client(object):
         else:
             raise EnvironmentError("Server Unauthorised")
 
-
     def __return_answer(self, data):
         """
         sends back the result
         """
         to_send = self.__encrypt(data)
-        to_send = [to_send[i:i + BUFFER_SIZE - 4] for i in xrange(0, len(to_send), BUFFER_SIZE)]
+        to_send = [to_send[i:i + BUFFER_SIZE - 3] for i in xrange(0, len(to_send), BUFFER_SIZE - 3)]
         self.__socket.send(str(len(to_send)))
+        sleep(1)
         for i in xrange(len(to_send)):
             num = str(i)
-            num = "".join([str(j - j) for j in xrange(3 - len(num))]) + num
+            num = "".join([str(j - j) for j in xrange(2 - len(num))]) + num
             self.__socket.send(num + "@" + to_send[i])
 
     def __update_processes(self):

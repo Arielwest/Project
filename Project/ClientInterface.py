@@ -7,11 +7,11 @@ from Cipher import Cipher
 
 
 class ClientInterface(object):
-    def __init__(self, sock, computer, key, signing_method, public_encrypt):
+    def __init__(self, sock, computer, key, signing_method, public_decrypt):
         self.__socket = sock
         self.__key = key
         self.sign = signing_method
-        self.public_encrypt = public_encrypt
+        self.public_decrypt = public_decrypt
         if not isinstance(computer, Computer):
             raise ValueError
         else:
@@ -61,26 +61,29 @@ class ClientInterface(object):
         length = self.__socket.recv(BUFFER_SIZE)
         for i in xrange(int(length)):
             data = self.__socket.recv(BUFFER_SIZE)
-            data = data.split(FRAGMENTS_SEPARATOR)
-            parts[int(data[0])] = (FRAGMENTS_SEPARATOR.join(data[1:]))
+            number, data = data.split(FRAGMENTS_SEPARATOR)
+            parts[int(number)] = data
         data = ""
         for i in xrange(int(length)):
             data += parts[i]
         return self.__decrypt(data)
 
     def __decrypt(self, data):
-        result, hashed = self.public_encrypt(data).split(IN_PACK_SEPARATOR)
+        data = self.public_decrypt(data)
+        result, hashed = data.split(IN_PACK_SEPARATOR)
         result = self.__key.decrypt(result)
         if Cipher.hash(result) == hashed:
             return result
         else:
             raise EnvironmentError("CLIENT UNAUTHORISED")
 
-    def terminate(self, process):
-        if isinstance(process, Process):
-            self.__send("TerminateProcess " + process.pid)
-            result = self.__receive()
-            return result
+    def terminate(self, processes):
+        result = ""
+        for process in processes:
+            if isinstance(process, Process):
+                self.__send("TerminateProcess " + process.pid)
+                result += self.__receive()
+        return result
 
     def open_process(self, command):
         self.__send("CreateProcess " + command)

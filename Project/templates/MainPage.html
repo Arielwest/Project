@@ -6,38 +6,36 @@
     <title>Network Manager</title>
 	    <meta http-equiv="refresh" content="60" >
 </head>
-
 <body>
 <script src="{{ url_for('static', filename='stylesheets/Table.js') }}"></script>
 <p>Computers:</p>
-<div class="container"><table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
-    <thead>
-        <tr><th>NUMBER</th><th>IP</th><th>MAC</th><th>Status</th><th>Operations</th></tr><!-- Table Header -->
-    </thead>
-    <tbody>
-        {% for row in computers %}
-        <form method="post" action="{{ url_for('show_main_form') }}">
-            <tr class='even'>
-                <td>{{ row['INDEX'] }}</td>
-                <td><input class="IpText" type="text" value="{{ row['IP'] }}"  name="Ip" readonly />  </td>
-                <td><input class="MacText" type="text" value="{{ row['MAC'] }}" name="Mac" readonly />  </td>
-                <td><input class="StatusText" type="text" value="{{ row['STATUS'] }}" name="Status" readonly />  </td>
-                <td>
-                    {% if row['STATUS'] == 'offline' %}
-                    <input id="ButtonWOL" type="submit" value="WakeOnLAN" name="Action" />
-                    {% else %}
-                    <input id="ButtonShutDown" type="submit" value="Shutdown" name="Action" />
-                    {% endif %}
-                    <input id="RemoteDesktop" type="submit" value="Remote Desktop" name="Action">
-                    {% if row['CONNECTED'] == 'True'%}
-                    <input id="Information" type="submit" value="More" name="Action">
-                    {% endif %}
-                </td>
-            </tr>
-        </form>
-        {% endfor %}
-    </tbody>
-</table>
-</div>
+<form method="post" action="{{ url_for('show_main_form' ) }}">
+    <div class="container"><table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
+        <thead>
+        <tr><th>CHECK</th><th>IP</th><th>MAC</th><th>Status</th><th>Operations</th></tr><!-- Table Header -->
+        </thead>
+        <tbody>
+            {% for row in computers %}
+                <tr class='even'>
+                    <td><input type="checkbox" name="check" value="{{ row['MAC'] }}_{{ row['IP'] }}"/></td>
+                    <form method="post" action="{{ url_for('show_main_form') }}">
+                        <td><input class="IpText" type="text" value="{{ row['IP'] }}"  name="Ip" readonly />  </td>
+                        <td><input class="MacText" type="text" value="{{ row['MAC'] }}" name="Mac" readonly />  </td>
+                        <td><input class="StatusText" type="text" value="{{ row['STATUS'] }}" name="Status" readonly />  </td>
+                        <td>
+                            <input id="RemoteDesktop" type="submit" value="Remote Desktop" name="Action">
+                            {% if row['CONNECTED'] == 'True'%}
+                            <input id="Information" type="submit" value="More" name="Action">
+                            {% endif %}
+                        </td>
+                    </form>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    <input id="ButtonWOL" type="submit" value="WakeOnLAN" name="Action" />
+    <input id="ButtonShutDown" type="submit" value="Shutdown" name="Action" />
+</form>
 </body>
 </html>

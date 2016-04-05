@@ -10,18 +10,19 @@
 <form method="get" action="{{ url_for('view_computer', mac=mac, ip=ip, name=name) }}"><input id="ButtonBack" type="submit" value="Back"/></form>
 <p>Processes for {{ name }}({{ mac }} - {{ip}}):</p>
 <p><strong>{{ message }}</strong></p>
-<table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
-    <tr><th>Process Name</th><th>PID</th><th>Parent ID</th><th>Operations</th></tr><!-- Table Header -->
-    {% for process in process_list %}
-    <form method="post" action="{{ url_for('show_processes', mac=mac, ip=ip, name=name) }}">
-        <tr class='even'>
-            <td><input class="ProcessText" type="text" value="{{ process['NAME'] }}"  name="name" readonly /></td>
-            <td><input class="StatusText" type="text" value="{{ process['PID'] }}" name="pid" readonly /></td>
-            <td><input class="StatusText" type="text" value="{{ process['PARENT_ID'] }}" name="parent_id" readonly /></td>
-            <td><input id="ButtonTerminate" type="submit" value="Terminate" name="Action" /></td>
-        </tr>
-    </form>
-    {% endfor %}
-</table>
+<form method="post" action="{{ url_for('show_processes', mac=mac, ip=ip, name=name) }}">
+    <table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
+        <tr><th>Process Name</th><th>PID</th><th>Parent ID</th></tr><!-- Table Header -->
+        {% for process in process_list %}
+            <tr class='even'>
+                <td><input type="checkbox" name="check" value="{{ process['NAME']}}_{{ process['PID'] }}_{{ process['PARENT_ID'] }}"/></td>
+                <td>{{ process['NAME'] }}</td>
+                <td>{{ process['PID'] }}</td>
+                <td>{{ process['PARENT_ID'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</form>
+<input id="ButtonTerminate" type="submit" value="Terminate" name="Action" />
 </body>
 </html>

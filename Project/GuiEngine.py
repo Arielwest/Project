@@ -22,12 +22,14 @@ def show_main_form():
         return render_template("Loading.html")
     elif server.running:
         if request.method == 'POST':
-            ip = request.form['Ip']
-            mac = request.form['Mac']
             if request.form['Action'] == "More":
+                ip = request.form['Ip']
+                mac = request.form['Mac']
                 url = url_for("view_computer", mac=mac, ip=ip)
                 return redirect(url)
             elif request.form['Action'] == "Remote Desktop":
+                ip = request.form['Ip']
+                mac = request.form['Mac']
                 server.remote_desktop(Computer(mac, ip))
             else:
                 action = request.form['Action']
@@ -35,7 +37,8 @@ def show_main_form():
                     action = 'wake up'
                 else:
                     action = 'shutdown'
-                return redirect(url_for('wake_on_lan', mac=mac, ip=ip, action=action))
+                computer_list = request.form.getlist('check')
+                return redirect(url_for('wake_on_lan', computer_list=str(computer_list), action=action))
         computers_dict = server.make_computers_dictionary()
         computers = [dict(IP=ip,MAC=mac, STATUS=state, INDEX=index, CONNECTED=connected) for ip, mac, state, index, connected in izip(computers_dict['IP'], computers_dict['MAC'], computers_dict['STATUS'], computers_dict['INDEX'], computers_dict['CONNECTED'])]
         return render_template("MainPage.html", computers=computers)
@@ -73,7 +76,7 @@ def show_files(mac, ip, name, path):
         elif action == 'Create':
             message = server.create_file(Computer(mac, ip), path, request.form['FileName'])
         else:
-            if path.endwith('\\'):
+            if path.endswith('\\'):
                 message = server.delete_file(Computer(mac, ip), path + request.form['FileName'])
             else:
                 message = server.delete_file(Computer(mac, ip), path + '\\' + request.form['FileName'])
@@ -89,37 +92,44 @@ def show_processes(mac, ip, name):
     message = ""
     computer = Computer(mac, ip)
     if request.method == 'POST':
-        process_name = request.form['name']
-        pid = request.form['pid']
-        parent_id = request.form['parent_id']
+        process_list = request.form.getlist['check']
         function = request.form['Action']
         if function == "Terminate":
-            message = server.terminate_process(computer, Process(process_name, pid, parent_id))
+            new_list = []
+            for process in process_list:
+                name, pid, ppid = process.split(u'_')
+                new_list.append(Process(name, pid, ppid))
+            process_list = new_list
+            message = server.terminate_process(computer, process_list)
         elif function == "Back":
             return redirect(url_for("view_computer", mac=mac, ip=ip))
     process_list = server.get_processes_data(computer)
     return render_template("ProcessesPage.html", process_list=process_list, mac=mac, ip=ip, name=name, message=message)
 
 
-@app.route('/wake_on_lan?mac=<mac>&ip=<ip>&action=<action>', methods=['GET', 'POST'])
-def wake_on_lan(mac, ip, action):
+@app.route('/wake_on_lan?computer_list=<computer_list>&action=<action>', methods=['GET', 'POST'])
+def wake_on_lan(computer_list, action):
     message = ""
     if request.method == 'POST':
         active = action == 'shutdown'
         if 'now' in request.form['Go']:
-            server.do_action_now(Computer(mac, ip, active), action)
+            for part in [item[1:-1] for item in computer_list[1:-1].split(', ')]:
+                mac, ip = part.split('_')
+                server.do_action_now(Computer(mac, ip, active), action)
             return redirect(url_for('show_main_form'))
         else:
             hour = request.form['hour']
             minute = request.form['minute']
             second = request.form['second']
             try:
-                server.do_action(Computer(mac, ip, active), hour, minute, second, action)
+                for part in [item[1:-1] for item in computer_list[1:-1].split(', ')]:
+                    mac, ip = part.split('_')
+                    server.do_action(Computer(mac, ip, active), hour, minute, second, action)
             except:
                 message = "Error: Time wasn't inserted correctly."
             else:
                 return redirect(url_for('show_main_form'))
-    return render_template("WakeOnLan.html", mac=mac, ip=ip, action=action, message=message)
+    return render_template("WakeOnLan.html", computer_list=computer_list, action=action, message=message)
 
 
 @app.route('/go_back?mac=<mac>&ip=<ip>&name=<name>&path=<path>')
