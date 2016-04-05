@@ -3,12 +3,15 @@ from socket import gethostbyaddr
 from WakeOnLan import wake_on_lan, shutdown
 from Process import Process
 from socket import socket
-import pickle
+from Cipher import Cipher
 
 
 class ClientInterface(object):
-    def __init__(self, sock, computer):
+    def __init__(self, sock, computer, key, signing_method, public_encrypt):
         self.__socket = sock
+        self.__key = key
+        self.sign = signing_method
+        self.public_encrypt = public_encrypt
         if not isinstance(computer, Computer):
             raise ValueError
         else:
@@ -31,8 +34,8 @@ class ClientInterface(object):
             return False
 
     def update_processes(self):
-        self.send("UpdateProcesses")
-        data = self.receive()
+        self.__send("UpdateProcesses")
+        data = self.__receive()
         process_list = [item[1:-1] for item in data[1:-1].split(", ")]
         self.processes = []
         for item in process_list:
@@ -44,48 +47,62 @@ class ClientInterface(object):
             else:
                 self.processes.append(process)
 
-    def send(self, data):
-        self.__socket.send(data)
+    def __send(self, data):
+        to_send = self.__encrypt(data)
+        self.__socket.send(to_send)
 
-    def receive(self):
+    def __encrypt(self, data):
+        result = self.__key.encrypt(data) + IN_PACK_SEPARATOR + Cipher.hash(data)
+        result = self.sign(result)
+        return result
+
+    def __receive(self):
         parts = {}
         length = self.__socket.recv(BUFFER_SIZE)
         for i in xrange(int(length)):
             data = self.__socket.recv(BUFFER_SIZE)
-            data = data.split('@')
-            parts[int(data[0])] = '@'.join(data[1:])
+            data = data.split(FRAGMENTS_SEPARATOR)
+            parts[int(data[0])] = (FRAGMENTS_SEPARATOR.join(data[1:]))
         data = ""
         for i in xrange(int(length)):
             data += parts[i]
-        return data
+        return self.__decrypt(data)
+
+    def __decrypt(self, data):
+        result, hashed = self.public_encrypt(data).split(IN_PACK_SEPARATOR)
+        result = self.__key.decrypt(result)
+        if Cipher.hash(result) == hashed:
+            return result
+        else:
+            raise EnvironmentError("CLIENT UNAUTHORISED")
 
     def terminate(self, process):
         if isinstance(process, Process):
-            self.send("TerminateProcess " + process.pid)
-            result = self.receive()
+            self.__send("TerminateProcess " + process.pid)
+            result = self.__receive()
             return result
 
     def open_process(self, command):
-        self.send("CreateProcess " + command)
-        result = self.receive()
+        self.__send("CreateProcess " + command)
+        result = self.__receive()
         return result
 
     def send_files(self, directory):
-        self.send("GetFile " + directory)
-        result = self.receive()
+        self.__send("GetFile " + directory)
+        result = self.__receive()
         if "ERROR" not in result:
             result = result.split(FILE_SEPARATOR)
             return result
         return result
 
     def delete_file(self, path):
-        self.send("DeleteFile " + path)
-        result = self.receive()
+        self.__send("DeleteFile " + path)
+        result = self.__receive()
         return result
 
     def create_file(self, path, name):
-        self.send("CreateFile " + path + " " + name)
-        result = self.receive()
+        self.__send("CreateFile " + path + " " + name)
+        result = self.__receive()
         return result
 
 

@@ -1,13 +1,5 @@
-import os
-from flask import Flask, render_template
-
-app = Flask(__name__)
-
-
-@app.route('/')
-def dirtree():
-    return render_template('try.html')
-
-
-if __name__ == "__main__":
-    app.run(host='localhost', port=8888, debug=True)
+data = raw_input("...")
+to_add = len(data) % 16
+print to_add
+data += '\x00' * to_add
+print len(data)
