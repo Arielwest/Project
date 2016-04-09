@@ -92,7 +92,7 @@ def show_processes(mac, ip, name):
     message = ""
     computer = Computer(mac, ip)
     if request.method == 'POST':
-        process_list = request.form.getlist['check']
+        process_list = request.form.getlist('check')
         function = request.form['Action']
         if function == "Terminate":
             new_list = []
@@ -142,7 +142,7 @@ def back(mac, ip, name, path):
 
 def main():
     webbrowser.open(FLASK_URL)
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", debug=False)
 
 if __name__ == "__main__":
     main()

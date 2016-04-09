@@ -23,7 +23,7 @@ class Server(object):
         self.starting = False
         self._connected_clients = ClientList()
         self.__signature = None
-        self.public_key = None
+        self.__public_key = None
 
     def start(self):
         """
@@ -33,7 +33,7 @@ class Server(object):
             raise NameError('Already running or starting...')
         self.starting = True
         self.__signature = Cipher.crate_signature()
-        self.public_key = Cipher()
+        self.__public_key = Cipher()
         self.__print("Updating database...")
         pythoncom.CoInitialize()
         current_arp = NetMap.map()
@@ -77,12 +77,12 @@ class Server(object):
                     client_socket, client_address = self.__main_socket.accept()
                     for computer in self.__database.read():
                         if computer.ip == client_address[0]:
-                            new_client_thread = Thread(target=self.new_client, args=[client_socket, computer])
+                            new_client_thread = Thread(target=self.__new_client, args=[client_socket, computer])
                             new_client_thread.setDaemon(True)
                             new_client_thread.start()
 
-    def new_client(self, client_socket, computer):
-        result = self.key_exchange(client_socket)
+    def __new_client(self, client_socket, computer):
+        result = self.__key_exchange(client_socket)
         if isinstance(result, Cipher):
             self._connected_clients.append(ClientInterface(client_socket, computer, result, self.sign, self.public_decrypt))
 
@@ -91,12 +91,12 @@ class Server(object):
             return self.__signature.encrypt(data)
 
     def public_decrypt(self, data):
-        if isinstance(self.public_key, Cipher):
-            return self.public_key.decrypt(data)
+        if isinstance(self.__public_key, Cipher):
+            return self.__public_key.decrypt(data)
 
-    def key_exchange(self, sock):
+    def __key_exchange(self, sock):
         data = sock.recv(BUFFER_SIZE)
-        key = self.public_key.decrypt(data)
+        key = self.__public_key.decrypt(data)
         key, his_hashed_key = key.split(IN_PACK_SEPARATOR)
         if Cipher.hash(key) == his_hashed_key:
             key = Cipher.unpack(key)
@@ -105,12 +105,11 @@ class Server(object):
             sock.send(to_send)
             return key
 
-
     def __broadcast_announce(self):
         """
         Runs in a thread. Announces the server's existence in the network
         """
-        message = self.public_key.public_key().pack() + IN_PACK_SEPARATOR + Cipher.hash(SERVER_ANNOUNCE_MESSAGE)
+        message = self.__public_key.public_key().pack() + IN_PACK_SEPARATOR + Cipher.hash(SERVER_ANNOUNCE_MESSAGE)
         self.__announce_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
         while True:
             self.__announce_socket.sendto(message, ("<broadcast>", BROADCAST_PORT))
@@ -227,7 +226,6 @@ class Server(object):
         if isinstance(client, ClientInterface):
             result = client.create_file(path, name)
             return result
-
 
     def remote_desktop(self, computer):
         subprocess.Popen(['mstsc', '/v:' + computer.ip])

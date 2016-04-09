@@ -12,7 +12,7 @@
 <p><strong>{{ message }}</strong></p>
 <form method="post" action="{{ url_for('show_processes', mac=mac, ip=ip, name=name) }}">
     <table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
-        <tr><th>Process Name</th><th>PID</th><th>Parent ID</th></tr><!-- Table Header -->
+        <tr><th></th><th>Process Name</th><th>PID</th><th>Parent ID</th></tr><!-- Table Header -->
         {% for process in process_list %}
             <tr class='even'>
                 <td><input type="checkbox" name="check" value="{{ process['NAME']}}_{{ process['PID'] }}_{{ process['PARENT_ID'] }}"/></td>
@@ -22,7 +22,7 @@
             </tr>
         {% endfor %}
     </table>
+    <input id="ButtonTerminate" type="submit" value="Terminate" name="Action" />
 </form>
-<input id="ButtonTerminate" type="submit" value="Terminate" name="Action" />
 </body>
 </html>
