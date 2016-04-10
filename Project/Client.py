@@ -32,7 +32,6 @@ class Client(object):
         self.__name = socket.gethostname()
         self.__processes = []
         self.__key = Cipher.random_key()
-        self.__server_public_key = None
         self.handle_functions = {
             "CreateFile": self.__create_file,
             "DeleteFile": self.__delete_file,
@@ -155,26 +154,19 @@ class Client(object):
             return False
         else:
             server_address = address[0]
-            key, hash_message = message.split(IN_PACK_SEPARATOR)
-            if hash_message == Cipher.hash(SERVER_ANNOUNCE_MESSAGE):
+            if message == SERVER_ANNOUNCE_MESSAGE:
                 status = self.__socket.connect_ex((server_address, SERVER_PORT))
                 if status == 0:
-                    self.__server_public_key = Cipher.unpack(key)
                     return self.__key_exchange()
             return False
 
     def __key_exchange(self):
+        server_public_key_data = self.__socket.recv(BUFFER_SIZE)
+        server_public_key = Cipher.unpack(server_public_key_data)
         to_send = self.__key.pack() + IN_PACK_SEPARATOR + Cipher.hash(self.__key.pack())
-        to_send = self.__server_public_key.encrypt(to_send)
+        to_send = server_public_key.encrypt(to_send)
         self.__socket.send(to_send)
-        signature = self.__socket.recv(BUFFER_SIZE)
-        while not signature.endswith(IN_PACK_SEPARATOR):
-            signature += self.__socket.recv(BUFFER_SIZE)
-        signature = self.__key.decrypt(signature)
-        signature, hashed = signature.split(IN_PACK_SEPARATOR)
-        if hashed == Cipher.hash(signature):
-            self.__server_signature = Cipher.unpack(signature)
-            return True
+        return True
 
     def __run(self):
         """
@@ -216,11 +208,10 @@ class Client(object):
 
     def __encrypt(self, data):
         result = self.__key.encrypt(data) + IN_PACK_SEPARATOR + Cipher.hash(data)
-        result = self.__server_public_key.encrypt(result)
         return result
 
     def __decrypt(self, data):
-        data, hashed = self.__server_signature.decrypt(data).split(IN_PACK_SEPARATOR)
+        data, hashed = data.split(IN_PACK_SEPARATOR)
         data = self.__key.decrypt(data)
         if Cipher.hash(data) == hashed:
             return data

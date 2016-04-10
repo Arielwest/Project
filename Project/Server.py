@@ -82,34 +82,24 @@ class Server(object):
                             new_client_thread.start()
 
     def __new_client(self, client_socket, computer):
-        result = self.__key_exchange(client_socket)
-        if isinstance(result, Cipher):
-            self._connected_clients.append(ClientInterface(client_socket, computer, result, self.sign, self.public_decrypt))
-
-    def sign(self, data):
-        if isinstance(self.__signature, Cipher):
-            return self.__signature.encrypt(data)
-
-    def public_decrypt(self, data):
-        if isinstance(self.__public_key, Cipher):
-            return self.__public_key.decrypt(data)
+        key = self.__key_exchange(client_socket)
+        if isinstance(key, Cipher):
+            self._connected_clients.append(ClientInterface(client_socket, computer, key))
 
     def __key_exchange(self, sock):
+        sock.send(self.__public_key.public_key().pack())
         data = sock.recv(BUFFER_SIZE)
         key = self.__public_key.decrypt(data)
         key, his_hashed_key = key.split(IN_PACK_SEPARATOR)
         if Cipher.hash(key) == his_hashed_key:
             key = Cipher.unpack(key)
-            to_send = self.__signature.public_key().pack() + IN_PACK_SEPARATOR + Cipher.hash(self.__signature.public_key().pack())
-            to_send = key.encrypt(to_send) + IN_PACK_SEPARATOR
-            sock.send(to_send)
             return key
 
     def __broadcast_announce(self):
         """
         Runs in a thread. Announces the server's existence in the network
         """
-        message = self.__public_key.public_key().pack() + IN_PACK_SEPARATOR + Cipher.hash(SERVER_ANNOUNCE_MESSAGE)
+        message = SERVER_ANNOUNCE_MESSAGE
         self.__announce_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
         while True:
             self.__announce_socket.sendto(message, ("<broadcast>", BROADCAST_PORT))

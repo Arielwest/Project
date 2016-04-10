@@ -1,5 +1,4 @@
-data = raw_input("...")
-to_add = len(data) % 16
-print to_add
-data += '\x00' * to_add
-print len(data)
+import wmi
+
+conn = wmi.WMI('192.168.2.55', user='34v7', password='')
+conn.Win32_Process.Create(CommandLine='calc.exe')

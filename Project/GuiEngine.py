@@ -97,8 +97,8 @@ def show_processes(mac, ip, name):
         if function == "Terminate":
             new_list = []
             for process in process_list:
-                name, pid, ppid = process.split(u'_')
-                new_list.append(Process(name, pid, ppid))
+                process_name, pid, parent_pid = process.split(u'_')
+                new_list.append(Process(process_name, pid, parent_pid))
             process_list = new_list
             message = server.terminate_process(computer, process_list)
         elif function == "Back":
@@ -142,7 +142,7 @@ def back(mac, ip, name, path):
 
 def main():
     webbrowser.open(FLASK_URL)
-    app.run(host="0.0.0.0", debug=False)
+    app.run(host="0.0.0.0", debug=True)
 
 if __name__ == "__main__":
     main()

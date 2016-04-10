@@ -7,11 +7,9 @@ from Cipher import Cipher
 
 
 class ClientInterface(object):
-    def __init__(self, sock, computer, key, signing_method, public_decrypt):
+    def __init__(self, sock, computer, key):
         self.__socket = sock
         self.__key = key
-        self.sign = signing_method
-        self.public_decrypt = public_decrypt
         if not isinstance(computer, Computer):
             raise ValueError
         else:
@@ -53,7 +51,6 @@ class ClientInterface(object):
 
     def __encrypt(self, data):
         result = self.__key.encrypt(data) + IN_PACK_SEPARATOR + Cipher.hash(data)
-        result = self.sign(result)
         return result
 
     def __receive(self):
@@ -69,7 +66,6 @@ class ClientInterface(object):
         return self.__decrypt(data)
 
     def __decrypt(self, data):
-        data = self.public_decrypt(data)
         result, hashed = data.split(IN_PACK_SEPARATOR)
         result = self.__key.decrypt(result)
         if Cipher.hash(result) == hashed:

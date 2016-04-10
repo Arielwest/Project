@@ -15,7 +15,7 @@
         <tr><th></th><th>Process Name</th><th>PID</th><th>Parent ID</th></tr><!-- Table Header -->
         {% for process in process_list %}
             <tr class='even'>
-                <td><input type="checkbox" name="check" value="{{ process['NAME']}}_{{ process['PID'] }}_{{ process['PARENT_ID'] }}"/></td>
+                <td class="td_check"><input type="checkbox" name="check" value="{{ process['NAME']}}_{{ process['PID'] }}_{{ process['PARENT_ID'] }}"/></td>
                 <td>{{ process['NAME'] }}</td>
                 <td>{{ process['PID'] }}</td>
                 <td>{{ process['PARENT_ID'] }}</td>
