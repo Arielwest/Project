@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/MyStyle.css') }}">
+    <title>Network Manager</title>
+</head>
+<form method="get" action="{{ url_for('show_main_form') }}"><input id="ButtonBack" type="submit" value="Back"/></form>
+<p><strong>{{ message }}</strong></p>
+<p>Please fill the next form:</p>
+<table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
+    <thead><tr><th>Criteria</th><th>Data</th></tr></thead>
+    <tbody>
+    <form method="post" action="{{ url_for('view_computer', mac=computer['MAC'], ip=computer['IP']) }}">
+        <tr class='even'>
+            <td>Mac Address</td>
+            <td><input class="MacText" type="text" value=""  name="Mac" />  </td>
+        </tr>
+        <tr>
+            <td>IP Address</td>
+            <td><input class="IpText" type="text" value=""  name="Ip" />  </td>
+        </tr>
+    </form>
+    </tbody>
+    <input id="SubmitForm" type="submit" value="Submit" name="Action" />
+</table>
+</body>
+</html>

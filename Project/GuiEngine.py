@@ -35,6 +35,8 @@ def show_main_form():
                 ip = request.form['Ip']
                 mac = request.form['Mac']
                 server.remote_desktop(Computer(mac, ip))
+            elif request.form['Action'] == "Add Computer Manually":
+                pass
             else:
                 action = request.form['Action']
                 if action == 'WakeOnLAN':
@@ -46,6 +48,16 @@ def show_main_form():
         computers_dict = server.make_computers_dictionary()
         computers = [dict(IP=ip,MAC=mac, STATUS=state, INDEX=index, CONNECTED=connected) for ip, mac, state, index, connected in izip(computers_dict['IP'], computers_dict['MAC'], computers_dict['STATUS'], computers_dict['INDEX'], computers_dict['CONNECTED'])]
         return render_template("MainPage.html", computers=computers)
+
+
+@app.route('/add_computer', methods=['GET', 'POST'])
+def add_computer():
+    message = ""
+    if request.method == 'POST':
+        ip = request.form['Ip']
+        mac = request.form['Mac']
+        message = server.and_computer(Computer(mac, ip, False))
+    return render_template('AddPage.html', message=message)
 
 
 @app.route('/view_computer?mac=<mac>&ip=<ip>', methods=['GET', 'POST'])

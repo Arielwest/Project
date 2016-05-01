@@ -217,6 +217,12 @@ class Server(object):
             result = client.create_file(path, name)
             return result
 
+    def and_computer(self, computer):
+        if isinstance(computer, Computer):
+            computer.active = False
+            self.__database.add_row(computer)
+            return "Computer successfully added."
+
     def remote_desktop(self, computer):
         subprocess.Popen(['mstsc', '/v:' + computer.ip])
 
