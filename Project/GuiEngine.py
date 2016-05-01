@@ -11,6 +11,10 @@ app = Flask(__name__)
 server = Server()
 
 
+def unicode_to_list(unicode):
+    return [item[2:-1] for item in unicode[1:-1].split(', ')]
+
+
 @app.route('/', methods=['GET', 'POST'])
 def show_main_form():
     if (not server.running) and (not server.starting):
@@ -113,7 +117,7 @@ def wake_on_lan(computer_list, action):
     if request.method == 'POST':
         active = action == 'shutdown'
         if 'now' in request.form['Go']:
-            for part in [item[1:-1] for item in computer_list[1:-1].split(', ')]:
+            for part in unicode_to_list(computer_list):
                 mac, ip = part.split('_')
                 server.do_action_now(Computer(mac, ip, active), action)
             return redirect(url_for('show_main_form'))
@@ -129,7 +133,8 @@ def wake_on_lan(computer_list, action):
                 message = "Error: Time wasn't inserted correctly."
             else:
                 return redirect(url_for('show_main_form'))
-    return render_template("WakeOnLan.html", computer_list=computer_list, action=action, message=message)
+    names = [str(item.split('_')[1]) for item in unicode_to_list(computer_list)]
+    return render_template("WakeOnLan.html", computer_list=computer_list, action=action, message=message, names=names)
 
 
 @app.route('/go_back?mac=<mac>&ip=<ip>&name=<name>&path=<path>')

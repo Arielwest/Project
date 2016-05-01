@@ -15,7 +15,8 @@
 <p>*If you want to create new file, write its name instead the 'new folder' and don't forget the suffix</p>
 <p>example: new.txt</p>
 <table cellpadding="0" cellspacing="0">
-    <tr><th>File Name</th><th>options</th></tr>
+    <thead><tr><th>File Name</th><th>options</th></tr></thead>
+    <tbody>
     {% for item in directory['ITEMS'] %}
     <form method="post" action="{{ url_for('show_files', mac=mac, ip=ip, name=name, path=directory['NAME']) }}">
         <tr class="even">
@@ -36,6 +37,7 @@
             <td><input id="NewButton" type="submit" value="Create" name="Action" /></td>
         </tr>
     </form>
+    </tbody>
     {% endif %}
 </table>
 {% endif %}

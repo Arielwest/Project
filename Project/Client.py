@@ -94,7 +94,7 @@ class Client(object):
             result = "ERROR: internal error"
         return result
 
-    def __terminate_process(self, pid):
+    def __terminate_process(self, pid, name):
         """
         kill a process
         """
@@ -108,11 +108,11 @@ class Client(object):
                 handle = OpenProcess(PROCESS_TERMINATE, False, int(pid))
                 TerminateProcess(handle, -1)
                 CloseHandle(handle)
-                result = pid + " terminated"
+                result = name+ '-' + pid + " terminated"
             except:
                 result = "ERROR: internal error"
         else:
-            result = "ERROR: no process " + pid
+            result = "ERROR: no process " + name + '-' + pid
         return result
 
     def __send_processes(self):

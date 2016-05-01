@@ -9,7 +9,8 @@
 <p><strong>{{ message }}</strong></p>
 <p>Computer:</p>
 <table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
-    <tr><th>Criteria</th><th>Data</th></tr><!-- Table Header -->
+    <thead><tr><th>Criteria</th><th>Data</th></tr></thead>
+    <tbody>
     <form method="post" action="{{ url_for('view_computer', mac=computer['MAC'], ip=computer['IP']) }}">
         <tr class='even'>
             <td>Host Name</td>
@@ -36,6 +37,7 @@
             <td><input id="ButtonOpen" type="submit" value="Open Process" name="Action"/></td>
         </tr>
     </form>
+    </tbody>
 </table>
 </body>
 </html>

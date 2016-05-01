@@ -77,7 +77,7 @@ class ClientInterface(object):
         result = ""
         for process in processes:
             if isinstance(process, Process):
-                self.__send("TerminateProcess " + process.pid)
+                self.__send("TerminateProcess " + process.pid + " " + process.name)
                 result += self.__receive()
         return result
 
