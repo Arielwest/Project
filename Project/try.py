@@ -1,4 +1,3 @@
-import wmi
+from flask import safe_join
 
-conn = wmi.WMI('192.168.2.55', user='34v7', password='')
-conn.Win32_Process.Create(CommandLine='calc.exe')
+print safe_join('a', 'b').replace('\\', 'c')

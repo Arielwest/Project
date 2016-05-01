@@ -11,7 +11,7 @@
 <table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
     <thead><tr><th>Criteria</th><th>Data</th></tr></thead>
     <tbody>
-    <form method="post" action="{{ url_for('view_computer', mac=computer['MAC'], ip=computer['IP']) }}">
+    <form method="post" action="{{ url_for('add_computer') }}">
         <tr class='even'>
             <td>Mac Address</td>
             <td><input class="MacText" type="text" value=""  name="Mac" />  </td>

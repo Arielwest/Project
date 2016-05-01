@@ -10,6 +10,8 @@ from ClientInterface import ClientInterface, ClientList, Computer
 from datetime import datetime
 import subprocess
 from Cipher import Cipher
+from os.path import exists
+from os import makedirs
 
 
 class Server(object):
@@ -53,6 +55,8 @@ class Server(object):
                 self.__database.add_row(computer)
                 database = self.__database.read()
         self.__print("Database updated.")
+        if not exists(DOWNLOAD_UPLOAD):
+            makedirs(DOWNLOAD_UPLOAD)
         network_scan_thread = Thread(target=self.__network_scan)
         network_scan_thread.setDaemon(True)
         network_scan_thread.start()
@@ -222,6 +226,16 @@ class Server(object):
             computer.active = False
             self.__database.add_row(computer)
             return "Computer successfully added."
+
+    def download(self, computer, directory):
+        client = self.__find_client(computer)
+        if isinstance(client, ClientInterface):
+            file_data = client.download(directory)
+            file_name = directory.split('\\')[-1]
+            file_dump = open(DOWNLOAD_UPLOAD + '\\' + file_name, 'wb+')
+            file_dump.write(file_data)
+            file_dump.close()
+            return file_name
 
     def remote_desktop(self, computer):
         subprocess.Popen(['mstsc', '/v:' + computer.ip])

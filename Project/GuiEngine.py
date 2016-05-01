@@ -1,5 +1,5 @@
 from Constants import *
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, safe_join, send_from_directory
 from itertools import izip
 import webbrowser
 from Server import Server
@@ -36,7 +36,7 @@ def show_main_form():
                 mac = request.form['Mac']
                 server.remote_desktop(Computer(mac, ip))
             elif request.form['Action'] == "Add Computer Manually":
-                pass
+                return redirect(url_for('add_computer'))
             else:
                 action = request.form['Action']
                 if action == 'WakeOnLAN':
@@ -60,6 +60,12 @@ def add_computer():
     return render_template('AddPage.html', message=message)
 
 
+@app.route('/download_file?mac=<mac>&ip=<ip>&directory=<path:directory>&item=<item>', methods=['GET'])
+def download_file(mac, ip, directory, item):
+    file_to_send = server.download(Computer(mac, ip), safe_join(directory, item))
+    return send_from_directory(DOWNLOAD_UPLOAD, file_to_send)
+
+
 @app.route('/view_computer?mac=<mac>&ip=<ip>', methods=['GET', 'POST'])
 def view_computer(mac, ip):
     message = ""
@@ -78,7 +84,7 @@ def view_computer(mac, ip):
     return render_template("InfoPage.html", computer=computer_data, message=message)
 
 
-@app.route('/view_files?mac=<mac>&ip=<ip>&name=<name>&path=<path>', methods=['GET', 'POST'])
+@app.route('/view_files?mac=<mac>&ip=<ip>&name=<name>&path=<path:path>', methods=['GET', 'POST'])
 def show_files(mac, ip, name, path):
     message = ""
     if request.method == 'POST':
@@ -92,10 +98,7 @@ def show_files(mac, ip, name, path):
         elif action == 'Create':
             message = server.create_file(Computer(mac, ip), path, request.form['FileName'])
         else:
-            if path.endswith('\\'):
-                message = server.delete_file(Computer(mac, ip), path + request.form['FileName'])
-            else:
-                message = server.delete_file(Computer(mac, ip), path + '\\' + request.form['FileName'])
+            message = server.delete_file(Computer(mac, ip), safe_join(path, request.form['FileName']))
     directory = server.get_file(Computer(mac, ip), path)
     if "ERROR" in directory['ITEMS']:
         message = directory['ITEMS']
@@ -149,7 +152,7 @@ def wake_on_lan(computer_list, action):
     return render_template("WakeOnLan.html", computer_list=computer_list, action=action, message=message, names=names)
 
 
-@app.route('/go_back?mac=<mac>&ip=<ip>&name=<name>&path=<path>')
+@app.route('/go_back?mac=<mac>&ip=<ip>&name=<name>&path=<path:path>')
 def back(mac, ip, name, path):
     new_path = '\\'.join(path.split('\\')[:-1])
     if not new_path:

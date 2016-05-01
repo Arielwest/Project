@@ -45,6 +45,11 @@ class ClientInterface(object):
             else:
                 self.processes.append(process)
 
+    def download(self, file_path):
+        self.__send("Upload " + file_path)
+        data = self.__receive()
+        return data
+
     def __send(self, data):
         to_send = self.__encrypt(data)
         self.__socket.send(to_send)

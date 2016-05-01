@@ -22,8 +22,10 @@
         <tr class="even">
             <td><input class="ProcessText" type="text" value="{{ item }}"  name="FileName" /></td>
             <td>
-                {% if '.' not in item %}
+                {% if item.startswith('.') or '.' not in item %}
                 <input id="ButtonOpen" type="submit" value="Open"  name="Action" />
+                {% else %}
+                <a href="{{ url_for('download_file', mac=mac, ip=ip, directory=directory['NAME'], item=item) }}" target="_blank">Download</a>
                 {% endif %}
                 <input id="ButtonDelete" type="submit" value="Delete" name="Action" />
             </td>

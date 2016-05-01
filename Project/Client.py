@@ -38,8 +38,18 @@ class Client(object):
             "CreateProcess": self.__create_process,
             "TerminateProcess": self.__terminate_process,
             "UpdateProcesses": self.__send_processes,
-            "GetFile": self.__get_file
+            "GetFile": self.__get_file,
+            "Upload": self.__send_file
         }
+
+    def __send_file(self, directory):
+        try:
+            the_file = open(directory, 'rb')
+            file_data = the_file.read()
+            the_file.close()
+            return file_data
+        except:
+            return "ERROR: File doesn't exists!"
 
     def __create_file(self, path, name):
         """
