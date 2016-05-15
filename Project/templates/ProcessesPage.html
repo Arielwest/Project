@@ -4,9 +4,24 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/MyStyle.css') }}">
     <title>Network Manager</title>
+    <script type="text/javascript">// <![CDATA[
+        function preloader(){
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("content").style.display = "block";
+        }//preloader
+        window.onload = preloader;
+// ]]></script>
 </head>
-
+<script type="text/javascript">// <![CDATA[
+        function preloader(){
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("content").style.display = "block";
+        }//preloader
+        window.onload = preloader;
+// ]]></script>
 <body>
+<div id="loading"></div>
+<div id="content">
 <form method="get" action="{{ url_for('view_computer', mac=mac, ip=ip, name=name) }}"><input id="ButtonBack" type="submit" value="Back"/></form>
 <p>Processes for {{ name }}({{ mac }} - {{ip}}):</p>
 <p><strong>{{ message }}</strong></p>
@@ -26,5 +41,6 @@
     </table>
     <input id="ButtonTerminate" type="submit" value="Terminate" name="Action" />
 </form>
+    </div>
 </body>
 </html>

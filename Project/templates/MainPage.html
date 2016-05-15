@@ -4,9 +4,18 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/MyStyle.css') }}">
     <title>Network Manager</title>
+    <script type="text/javascript">// <![CDATA[
+        function preloader(){
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("content").style.display = "block";
+        }//preloader
+        window.onload = preloader;
+// ]]></script>
 	    <meta http-equiv="refresh" content="60" >
 </head>
 <body>
+<div id="loading"></div>
+<div id="content">
 <p>Computers:</p>
 <form method="post" action="{{ url_for('show_main_form' ) }}">
     <div class="container"><table cellspacing='0' cellpadding='0'> <!-- cellspacing='0' is important, must stay -->
@@ -39,5 +48,6 @@
     <input id="ButtonShutDown" type="submit" value="Shutdown" name="Action" />
     <input id="ButtonManually" type="submit" value="Add Computer Manually" name="Action" />
 </form>
+    </div>
 </body>
 </html>
