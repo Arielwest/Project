@@ -32,9 +32,9 @@ def show_main_form():
                 url = url_for("view_computer", mac=mac, ip=ip)
                 return redirect(url)
             elif request.form['Action'] == "Remote Desktop":
-                ip = request.form['Ip']
-                mac = request.form['Mac']
-                server.remote_desktop(Computer(mac, ip))
+                computers = request.form.getlist('check')
+                computer_list = [Computer(comp.split('_')[0], comp.split('_')[1]) for comp in computers]
+                server.remote_desktop(computer_list)
             elif request.form['Action'] == "Add Computer Manually":
                 return redirect(url_for('add_computer'))
             else:

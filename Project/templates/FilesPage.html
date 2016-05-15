@@ -3,20 +3,28 @@
 <head>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/MyStyle.css') }}" />
     <script type="text/javascript">// <![CDATA[
-        function preloader(){
-            document.getElementById("loading").style.display = "none";
-            document.getElementById("content").style.display = "block";
-        }//preloader
-        window.onload = preloader;
-// ]]></script>
+            function loading(){
+                $("#loading").show();
+                $("#content").hide();
+            }
+            function alert(){
+                var r = confirm("Are you sure you want to delete the file?");
+                if (r == true) {
+                    x = "You pressed OK!";
+                } else {
+                    x = "You pressed Cancel!";
+                }
+            }
+
+    // ]]></script>
 </head>
 <body>
 <div id="loading"></div>
 <div id="content">
 {% if 'Drives' in directory['NAME'] %}
-<form method="get" action="{{ url_for('view_computer', mac=mac, ip=ip, name=name) }}"><input id="ButtonBack1" type="submit" value="Back"/></form>
+<form method="get" action="{{ url_for('view_computer', mac=mac, ip=ip, name=name) }}"><input id="ButtonBack1" type="submit" value="Back" onclick="loading();"/></form>
 {% else %}
-<form method="get" action="{{ url_for('back', mac=mac, ip=ip, name=name, path=directory['NAME']) }}"><input id="ButtonBack2" type="submit" value="Back"/></form>
+<form method="get" action="{{ url_for('back', mac=mac, ip=ip, name=name, path=directory['NAME']) }}"><input id="ButtonBack2" type="submit" value="Back" onclick="loading();"/></form>
 {% endif %}
 <p><strong>{{ message }}</strong></p>
 <p><strong>File Tree for {{ name + " (" + mac + " " + ip + ")" }}:</strong></p>
@@ -33,11 +41,11 @@
             <td><input class="ProcessText" type="text" value="{{ item }}"  name="FileName" /></td>
             <td>
                 {% if item.startswith('.') or '.' not in item %}
-                <input id="ButtonOpen" type="submit" value="Open"  name="Action" />
+                <input id="ButtonOpen" type="submit" value="Open"  name="Action" onclick="loading();"/>
                 {% else %}
                 <a href="{{ url_for('download_file', mac=mac, ip=ip, directory=directory['NAME'], item=item) }}" target="_blank">Download</a>
                 {% endif %}
-                <input id="ButtonDelete" type="submit" value="Delete" name="Action" />
+                <input id="ButtonDelete" type="submit" value="Delete" name="Action" onclick="alert();"/>
             </td>
         </tr>
     </form>
@@ -46,7 +54,7 @@
     <form method="post" action="{{ url_for('show_files', mac=mac, ip=ip, name=name, path=directory['NAME']) }}">
         <tr class="even">
             <td><input class="ProcessText" type="text" value="new folder" name="FileName"/></td>
-            <td><input id="NewButton" type="submit" value="Create" name="Action" /></td>
+            <td><input id="NewButton" type="submit" value="Create" name="Action" onclick="loading();"/></td>
         </tr>
     </form>
     </tbody>

@@ -184,42 +184,66 @@ class Server(object):
     def get_processes_data(self, computer):
         client = self.__find_client(computer)
         if isinstance(client, ClientInterface):
-            client.update_processes()
-            processes_list = [dict(NAME=process.name, PID=process.pid, PARENT_ID=process.parent_id) for process in client.processes]
-            return processes_list
+            try:
+                client.update_processes()
+            except:
+                self._connected_clients.remove(client)
+            else:
+                processes_list = [dict(NAME=process.name, PID=process.pid, PARENT_ID=process.parent_id) for process in client.processes]
+                return processes_list
 
     def terminate_process(self, computer, processes):
         client = self.__find_client(computer)
         if isinstance(client, ClientInterface):
-            result = client.terminate(processes)
-            return result
+            try:
+                result = client.terminate(processes)
+            except:
+                self._connected_clients.remove(client)
+            else:
+                return result
 
     def open_process(self, computer, command):
         client = self.__find_client(computer)
         if isinstance(client, ClientInterface):
-            result = client.open_process(command)
-            return result
+            try:
+                result = client.open_process(command)
+            except:
+                self._connected_clients.remove(client)
+            else:
+                return result
 
     def get_file(self, computer, directory):
         client = self.__find_client(computer)
         if isinstance(client, ClientInterface):
-            result = client.send_files(directory)
-            return {
-                'NAME': directory,
-                'ITEMS': result
-            }
+            try:
+                result = client.send_files(directory)
+            except:
+                self._connected_clients.remove(client)
+            else:
+                return {
+                    'NAME': directory,
+                    'ITEMS': result
+                }
 
     def delete_file(self, computer, directory):
         client = self.__find_client(computer)
         if isinstance(client, ClientInterface):
-            result = client.delete_file(directory)
-            return result
+            try:
+                result = client.delete_file(directory)
+            except:
+                self._connected_clients.remove(client)
+            else:
+                return result
 
     def create_file(self, computer, path, name):
         client = self.__find_client(computer)
         if isinstance(client, ClientInterface):
-            result = client.create_file(path, name)
-            return result
+            try:
+                result = client.create_file(path, name)
+            except:
+                self._connected_clients.remove(client)
+            else:
+                return result
 
     def and_computer(self, computer):
         if isinstance(computer, Computer):
@@ -237,8 +261,9 @@ class Server(object):
             file_dump.close()
             return file_name
 
-    def remote_desktop(self, computer):
-        subprocess.Popen(['mstsc', '/v:' + computer.ip])
+    def remote_desktop(self, computer_list):
+        for computer in computer_list:
+            subprocess.Popen(['mstsc', '/v:' + computer.ip])
 
 
 def main():

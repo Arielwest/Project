@@ -258,7 +258,7 @@ class Client(object):
         if path == EMPTY_PATH:
             files = FILE_SEPARATOR.join(GetLogicalDriveStrings().split('\000')[:-1])
         elif exists(path):
-            files = FILE_SEPARATOR.join([f for f in os.listdir(path)])
+            files = FILE_SEPARATOR.join([str(f) for f in os.listdir(path)])
         else:
             files = "ERROR: no directory " + path
         return files

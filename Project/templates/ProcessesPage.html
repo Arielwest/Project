@@ -5,24 +5,16 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/MyStyle.css') }}">
     <title>Network Manager</title>
     <script type="text/javascript">// <![CDATA[
-        function preloader(){
-            document.getElementById("loading").style.display = "none";
-            document.getElementById("content").style.display = "block";
-        }//preloader
-        window.onload = preloader;
-// ]]></script>
+            function loading(){
+                $("#loading").show();
+                $("#content").hide();
+            }
+    // ]]></script>
 </head>
-<script type="text/javascript">// <![CDATA[
-        function preloader(){
-            document.getElementById("loading").style.display = "none";
-            document.getElementById("content").style.display = "block";
-        }//preloader
-        window.onload = preloader;
-// ]]></script>
 <body>
 <div id="loading"></div>
 <div id="content">
-<form method="get" action="{{ url_for('view_computer', mac=mac, ip=ip, name=name) }}"><input id="ButtonBack" type="submit" value="Back"/></form>
+<form method="get" action="{{ url_for('view_computer', mac=mac, ip=ip, name=name) }}"><input id="ButtonBack" type="submit" value="Back" onclick="loading();"/></form>
 <p>Processes for {{ name }}({{ mac }} - {{ip}}):</p>
 <p><strong>{{ message }}</strong></p>
 <form method="post" action="{{ url_for('show_processes', mac=mac, ip=ip, name=name) }}">
@@ -39,7 +31,7 @@
         {% endfor %}
         </tbody>
     </table>
-    <input id="ButtonTerminate" type="submit" value="Terminate" name="Action" />
+    <input id="ButtonTerminate" type="submit" value="Terminate" name="Action" onclick="loading();"/>
 </form>
     </div>
 </body>

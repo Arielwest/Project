@@ -212,17 +212,10 @@ SPAN.td
     color: #fff;
 }
 
-div#content {
-    display: none;
-    }
- 
 div#loading {
-    top: 200 px;
-    margin: auto;
-    position: absolute;
-    z-index: 1000;
-    width: 160px;
-    height: 24px;
-    background: url(loadingimage.gif) no-repeat;
-    cursor: wait;
-    }
+    width: 35px;
+    height: 35px;
+    display: none;
+    background: {{ url_for('static', filename='loadingimage.gif') }} no-repeat;
+    cursor: wait;
+    }

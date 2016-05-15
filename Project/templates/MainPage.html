@@ -5,13 +5,12 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/MyStyle.css') }}">
     <title>Network Manager</title>
     <script type="text/javascript">// <![CDATA[
-        function preloader(){
-            document.getElementById("loading").style.display = "none";
-            document.getElementById("content").style.display = "block";
-        }//preloader
-        window.onload = preloader;
-// ]]></script>
-	    <meta http-equiv="refresh" content="60" >
+            function loading(){
+                $("#loading").show();
+                $("#content").hide();
+            }
+    // ]]></script>
+    <meta http-equiv="refresh" content="60" >
 </head>
 <body>
 <div id="loading"></div>
@@ -31,11 +30,8 @@
                         <td><input class="MacText" type="text" value="{{ row['MAC'] }}" name="Mac" readonly />  </td>
                         <td><input class="StatusText" type="text" value="{{ row['STATUS'] }}" name="Status" readonly />  </td>
                         <td>
-                            {% if row['STATUS'] == 'online' %}
-                            <input id="RemoteDesktop" type="submit" value="Remote Desktop" name="Action">
-                            {% endif %}
                             {% if row['CONNECTED'] == 'True'%}
-                            <input id="Information" type="submit" value="More" name="Action">
+                            <input id="Information" type="submit" value="More" name="Action" onclick="loading();"/>
                             {% endif %}
                         </td>
                     </form>
@@ -44,9 +40,10 @@
         </tbody>
     </table>
     </div>
-    <input id="ButtonWOL" type="submit" value="WakeOnLAN" name="Action" />
-    <input id="ButtonShutDown" type="submit" value="Shutdown" name="Action" />
-    <input id="ButtonManually" type="submit" value="Add Computer Manually" name="Action" />
+    <input id="ButtonWOL" type="submit" value="WakeOnLAN" name="Action" onclick="loading();"/>
+    <input id="ButtonShutDown" type="submit" value="Shutdown" name="Action" onclick="loading();"/>
+    <input id="ButtonManually" type="submit" value="Add Computer Manually" name="Action" onclick="loading();"/>
+    <input id="RemoteDesktop" type="submit" value="Remote Desktop" name="Action" onclick="loading();"/>
 </form>
     </div>
 </body>
