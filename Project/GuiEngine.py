@@ -1,3 +1,18 @@
+# region ---------------------------- ABOUT ----------------------------
+"""
+##################################################################
+# Created By: Ariel Westfried                                    #
+# Date: 01/01/2016                                               #
+# Name: Project - GuiEngine                                      #
+# Version: 1.0                                                   #
+# Windows Tested Versions: Win 7 32-bit                          #
+# Python Tested Versions: 2.6 32-bit                             #
+# Python Environment  : PyCharm                                  #
+##################################################################
+"""
+# endregion
+
+# region ---------------------------- IMPORTS ----------------------------
 from Constants import *
 from flask import Flask, render_template, request, redirect, url_for, safe_join, send_from_directory
 from itertools import izip
@@ -6,6 +21,9 @@ from Server import Server
 from threading import Thread
 from ClientInterface import Computer
 from Process import Process
+# endregion
+
+# region ---------------------------- FLASK METHODS ----------------------------
 
 app = Flask(__name__)
 server = Server()
@@ -15,6 +33,7 @@ def unicode_to_list(unicode):
     return [item[2:-1] for item in unicode[1:-1].split(', ')]
 
 
+# handles MAinPage.html
 @app.route('/', methods=['GET', 'POST'])
 def show_main_form():
     if (not server.running) and (not server.starting):
@@ -50,6 +69,7 @@ def show_main_form():
         return render_template("MainPage.html", computers=computers)
 
 
+# handles AddPage.html
 @app.route('/add_computer', methods=['GET', 'POST'])
 def add_computer():
     message = ""
@@ -60,12 +80,14 @@ def add_computer():
     return render_template('AddPage.html', message=message)
 
 
+# handles Downloading
 @app.route('/download_file?mac=<mac>&ip=<ip>&directory=<path:directory>&item=<item>', methods=['GET'])
 def download_file(mac, ip, directory, item):
     file_to_send = server.download(Computer(mac, ip), safe_join(directory, item))
     return send_from_directory(DOWNLOAD_UPLOAD, file_to_send)
 
 
+# handles InfoPage.html
 @app.route('/view_computer?mac=<mac>&ip=<ip>', methods=['GET', 'POST'])
 def view_computer(mac, ip):
     message = ""
@@ -84,6 +106,7 @@ def view_computer(mac, ip):
     return render_template("InfoPage.html", computer=computer_data, message=message)
 
 
+# handles FilesPage.html
 @app.route('/view_files?mac=<mac>&ip=<ip>&name=<name>&path=<path:path>', methods=['GET', 'POST'])
 def show_files(mac, ip, name, path):
     message = ""
@@ -106,6 +129,7 @@ def show_files(mac, ip, name, path):
     return render_template("FilesPage.html", directory=directory, mac=mac, ip=ip, name=name, message=message)
 
 
+# handles ProcessesPage.html
 @app.route('/view_processes?mac=<mac>&ip=<ip>&name=<name>', methods=['GET', 'POST'])
 def show_processes(mac, ip, name):
     message = ""
@@ -126,6 +150,7 @@ def show_processes(mac, ip, name):
     return render_template("ProcessesPage.html", process_list=process_list, mac=mac, ip=ip, name=name, message=message)
 
 
+# handles WakeOnLan.html
 @app.route('/wake_on_lan?computer_list=<computer_list>&action=<action>', methods=['GET', 'POST'])
 def wake_on_lan(computer_list, action):
     message = ""
@@ -152,12 +177,16 @@ def wake_on_lan(computer_list, action):
     return render_template("WakeOnLan.html", computer_list=computer_list, action=action, message=message, names=names)
 
 
+# Shows one folder up
 @app.route('/go_back?mac=<mac>&ip=<ip>&name=<name>&path=<path:path>')
 def back(mac, ip, name, path):
     new_path = '\\'.join(path.split('\\')[:-1])
     if not new_path:
         new_path = EMPTY_PATH
     return redirect(url_for('show_files', mac=mac, ip=ip, name=name, path=new_path))
+# endregion
+
+# region ---------------------------- MAIN ----------------------------
 
 
 def main():
@@ -166,3 +195,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+# endregion
+

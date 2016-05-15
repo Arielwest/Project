@@ -1,13 +1,31 @@
+# region ---------------------------- ABOUT ----------------------------
+"""
+##################################################################
+# Created By: Ariel Westfried                                    #
+# Date: 01/01/2016                                               #
+# Name: Project - NetMap                                         #
+# Version: 1.0                                                   #
+# Windows Tested Versions: Win 7 32-bit                          #
+# Python Tested Versions: 2.6 32-bit                             #
+# Python Environment  : PyCharm                                  #
+##################################################################
+"""
+# endregion
+
+# region ---------------------------- IMPORTS ----------------------------
 from Constants import *
 import re
 import subprocess
 import wmi
 from scapy.all import *
 from ClientInterface import Computer
+# endregion
+
+# region ---------------------------- NemMap CLASS ----------------------------
 
 
 class NetMap(object):
-
+    # main mapping method
     @staticmethod
     def map():
         """
@@ -18,6 +36,7 @@ class NetMap(object):
         result_list = NetMap.__combine_tables(list1, list2)
         return result_list
 
+    # combines the two arp tables generated
     @staticmethod
     def __combine_tables(list1, list2):
         """
@@ -29,6 +48,7 @@ class NetMap(object):
                 result_list.append(computer)
         return result_list
 
+    # takes the computer's table
     @staticmethod
     def __map_with_cmd():
         """
@@ -47,6 +67,7 @@ class NetMap(object):
                 result.append(computer)
         return result
 
+    # surveying the netwotk with scapy
     @staticmethod
     def __map_with_scapy():
         """
@@ -66,6 +87,7 @@ class NetMap(object):
             result.append(computer)
         return result
 
+    # return the Broadcast address for the current network
     @staticmethod
     def __get_final_gateway(gateway_ip, subnet_mask):
         gate_array = gateway_ip.split(".", 4)
@@ -93,6 +115,7 @@ class NetMap(object):
     def __ip_and(gW, mask):
         return int(gW) & int(mask)
 
+    # gets the network attributes
     @staticmethod
     def __get_network_attributes():
         """
@@ -108,12 +131,17 @@ class NetMap(object):
         my_ip, gateway_ip, my_mac = wmi_out[index].IPAddress[0], wmi_out[index].DefaultIPGateway[0], wmi_out[index].MACAddress
         subnet_mask = wmi_out[index].IPSubnet[0]
         return my_ip, gateway_ip, my_mac, subnet_mask
+# endregion
 
 
+# checks if ip is valid
 def is_ip(ip):
     return re.match(IP_REGULAR_EXPRESSION, ip)
 
+# region ---------------------------- MAIN ----------------------------
 
+
+# Prints an up to date arp table
 def main():
     print "scanning...\r\nIt will take a while."
     arp_table = NetMap.map()
@@ -123,3 +151,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# endregion

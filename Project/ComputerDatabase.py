@@ -1,14 +1,33 @@
+# region ---------------------------- ABOUT ----------------------------
+"""
+##################################################################
+# Created By: Ariel Westfried                                    #
+# Date: 01/01/2016                                               #
+# Name: Project - ComputerDatabase                               #
+# Version: 1.0                                                   #
+# Windows Tested Versions: Win 7 32-bit                          #
+# Python Tested Versions: 2.6 32-bit                             #
+# Python Environment  : PyCharm                                  #
+##################################################################
+"""
+# endregion
+
+# region ---------------------------- IMPORTS ----------------------------
 import sqlite3
 from Constants import *
 from ClientInterface import Computer
 import re
+# endregion
+
+# region ---------------------------- ComputerDatabase CLASS ----------------------------
 
 
 class ComputerDatabase:
-
+    # constructor
     def __init__(self):  # Constructor
         self.__create_computers_table()
 
+    # creates a new table in cas ethe table doesn't exist
     def __create_computers_table(self):
         """
         Creates the tables if it doesn't exist
@@ -21,6 +40,7 @@ class ComputerDatabase:
         database.commit()
         self.__close(cursor, database)
 
+    # adds a new computer to the database
     def add_row(self, computer):
         """
         Inserts a new row to the table
@@ -33,6 +53,7 @@ class ComputerDatabase:
         else:
             raise ValueError
 
+    # Return the database as a list of Computer objects
     def read(self):
         """
         Reads all the database and returns it as a list
@@ -47,6 +68,7 @@ class ComputerDatabase:
         self.__close(cursor, database)
         return computers
 
+    # changes the state (online or offline) of a computer in the database
     def update_state(self, computer):
         """
         Updates the state of a computer
@@ -73,7 +95,7 @@ class ComputerDatabase:
         database.commit()
         self.__close(cursor, database)
 
-
+    # returns the database as a dictionary
     def make_dictionary(self):
         computers_dict = {"IP": [], "MAC": [], "STATUS": [], "INDEX": []}
         computers = self.read()
@@ -86,7 +108,7 @@ class ComputerDatabase:
             i += 1
         return computers_dict
 
-
+    # closes the database objects
     def __close(self, cursor, database):
         """
         Closes itself
@@ -94,12 +116,17 @@ class ComputerDatabase:
         cursor.close()
         database.close()
 
+    # opens the database objecs
     def __open(self):
         database = sqlite3.connect(DATABASE_NAME)
         cursor = database.cursor()
         return database, cursor
+# endregion
+
+# region ---------------------------- MAIN ----------------------------
 
 
+# prints the database
 def main():
     db = ComputerDatabase()
     data = db.read()
@@ -108,3 +135,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# endregion

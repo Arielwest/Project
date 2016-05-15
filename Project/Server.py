@@ -1,3 +1,18 @@
+# region ---------------------------- ABOUT ----------------------------
+"""
+##################################################################
+# Created By: Ariel Westfried                                    #
+# Date: 01/01/2016                                               #
+# Name: Project - Server                                         #
+# Version: 1.0                                                   #
+# Windows Tested Versions: Win 7 32-bit                          #
+# Python Tested Versions: 2.6 32-bit                             #
+# Python Environment  : PyCharm                                  #
+##################################################################
+"""
+# endregion
+
+# region ---------------------------- IMPORTS ----------------------------
 from Constants import *
 from socket import socket, gethostbyname, gethostname, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST
 from threading import Thread, Lock
@@ -12,9 +27,13 @@ import subprocess
 from Cipher import Cipher
 from os.path import exists
 from os import makedirs
+# endregion
+
+# region ---------------------------- Server CLASS ----------------------------
 
 
 class Server(object):
+    # constructor
     def __init__(self):
         self.__address = gethostbyname(gethostname())
         self.__main_socket = socket()
@@ -27,6 +46,7 @@ class Server(object):
         self.__signature = None
         self.__public_key = None
 
+    # starts server - updates database and starts threads
     def start(self):
         """
         Starts the server
@@ -69,6 +89,7 @@ class Server(object):
         self.running = True
         self.__run()
 
+    # the main running method of the server
     def __run(self):
         """
         Actual main code of the server
@@ -85,11 +106,13 @@ class Server(object):
                             new_client_thread.setDaemon(True)
                             new_client_thread.start()
 
+    # handles a newly connected client
     def __new_client(self, client_socket, computer):
         key = self.__key_exchange(client_socket)
         if isinstance(key, Cipher):
             self._connected_clients.append(ClientInterface(client_socket, computer, key))
 
+    # Operates the key exchange with client
     def __key_exchange(self, sock):
         sock.send(self.__public_key.public_key().pack())
         data = sock.recv(BUFFER_SIZE)
@@ -99,6 +122,7 @@ class Server(object):
             key = Cipher.unpack(key)
             return key
 
+    # Has it's own thread - announces the server address to the network
     def __broadcast_announce(self):
         """
         Runs in a thread. Announces the server's existence in the network
@@ -109,6 +133,7 @@ class Server(object):
             self.__announce_socket.sendto(message, ("<broadcast>", BROADCAST_PORT))
             sleep(ANNOUNCE_SLEEP_TIME)
 
+    
     def __network_scan(self):
         """
         Scans the network
@@ -264,8 +289,12 @@ class Server(object):
     def remote_desktop(self, computer_list):
         for computer in computer_list:
             subprocess.Popen(['mstsc', '/v:' + computer.ip])
+# endregion
+
+# region ---------------------------- MAIN ----------------------------
 
 
+# runs server without GUI
 def main():
     server = Server()
     server.start()
@@ -273,3 +302,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# endregion
