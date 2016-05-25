@@ -76,14 +76,17 @@ def add_computer():
     if request.method == 'POST':
         ip = request.form['Ip']
         mac = request.form['Mac']
-        message = server.and_computer(Computer(mac, ip, False))
+        message = server.add_computer(Computer(mac, ip, False))
     return render_template('AddPage.html', message=message)
 
 
 # handles Downloading
 @app.route('/download_file?mac=<mac>&ip=<ip>&directory=<path:directory>&item=<item>', methods=['GET'])
 def download_file(mac, ip, directory, item):
-    file_to_send = server.download(Computer(mac, ip), safe_join(directory, item))
+    try:
+        file_to_send = server.download(Computer(mac, ip), safe_join(directory, item))
+    except:
+        return 'Download Error'
     return send_from_directory(DOWNLOAD_UPLOAD, file_to_send)
 
 
@@ -191,7 +194,7 @@ def back(mac, ip, name, path):
 
 def main():
     webbrowser.open(FLASK_URL)
-    app.run(host="0.0.0.0", debug=False)
+    app.run(host="0.0.0.0", debug=True)
 
 if __name__ == "__main__":
     main()

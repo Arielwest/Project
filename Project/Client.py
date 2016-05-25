@@ -1,28 +1,41 @@
-try:
-    import socket
-    from uuid import getnode as get_mac
-    from Constants import *
-    from threading import Thread, Lock
-    from wmi import WMI
-    from time import sleep
-    from win32file import CreateDirectory, DeleteFile, RemoveDirectory
-    from win32process import CreateProcess, STARTUPINFO, TerminateProcess, STARTF_USESHOWWINDOW
-    from win32api import OpenProcess, GetLogicalDriveStrings, CloseHandle
-    from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS, SW_NORMAL
-    import pythoncom
-    import os
-    from os.path import exists
-    from ctypes import windll
-    from select import select
-    from Process import Process
-    import pickle
-    import subprocess
-    import sys
-    from Cipher import Cipher
-except:
-    pipe = subprocess.Popen([sys.executable, 'install.py'], stdin=subprocess.PIPE)
-    pipe.stdin.write('Client.py' + END_LINE)
-    exit()
+# region ---------------------------- ABOUT ----------------------------
+"""
+##################################################################
+# Created By: Ariel Westfried                                    #
+# Date: 01/01/2016                                               #
+# Name: Project - Client                                         #
+# Version: 1.0                                                   #
+# Windows Tested Versions: Win 7 32-bit                          #
+# Python Tested Versions: 2.6 32-bit                             #
+# Python Environment  : PyCharm                                  #
+##################################################################
+"""
+# endregion
+
+# region ---------------------------- IMPORTS ----------------------------
+import socket
+from uuid import getnode as get_mac
+from Constants import *
+from threading import Thread, Lock
+from wmi import WMI
+from time import sleep
+from win32file import CreateDirectory, DeleteFile, RemoveDirectory
+from win32process import CreateProcess, STARTUPINFO, TerminateProcess, STARTF_USESHOWWINDOW
+from win32api import OpenProcess, GetLogicalDriveStrings, CloseHandle
+from win32con import PROCESS_TERMINATE, NORMAL_PRIORITY_CLASS, SW_NORMAL
+import pythoncom
+import os
+from os.path import exists
+from ctypes import windll
+from select import select
+from Process import Process
+import pickle
+import subprocess
+import sys
+from Cipher import Cipher
+# endregion
+
+# region ---------------------------- CLASS Client ----------------------------
 
 
 class Client(object):
@@ -233,12 +246,15 @@ class Client(object):
         sends back the result
         """
         to_send = self.__encrypt(data)
-        to_send = [to_send[i:i + BUFFER_SIZE - 3] for i in xrange(0, len(to_send), BUFFER_SIZE - 3)]
+        num_size = len(to_send) / BUFFER_SIZE + 1
+        if str(len(to_send)).startswith('9'):
+            num_size += 1
+        to_send = [to_send[i:i + BUFFER_SIZE - (num_size + 1)] for i in xrange(0, len(to_send), BUFFER_SIZE - (num_size + 1))]
         self.__socket.send(str(len(to_send)))
         sleep(1)
         for i in xrange(len(to_send)):
             num = str(i)
-            num = "".join([str(j - j) for j in xrange(2 - len(num))]) + num
+            num = "".join([str(j - j) for j in xrange(num_size - len(num))]) + num
             self.__socket.send(num + "@" + to_send[i])
 
     def __update_processes(self):
@@ -262,6 +278,9 @@ class Client(object):
         else:
             files = "ERROR: no directory " + path
         return files
+# endregion
+
+# region ---------------------------- MAIN ----------------------------
 
 
 def main():
@@ -271,3 +290,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# endregion

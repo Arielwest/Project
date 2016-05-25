@@ -19,6 +19,8 @@ import subprocess
 import wmi
 from scapy.all import *
 from ClientInterface import Computer
+import struct
+from socket import inet_aton
 # endregion
 
 # region ---------------------------- NemMap CLASS ----------------------------
@@ -112,8 +114,8 @@ class NetMap(object):
         return times
 
     @staticmethod
-    def __ip_and(gW, mask):
-        return int(gW) & int(mask)
+    def __ip_and(ip1, ip2):
+        return int(ip1) & int(ip2)
 
     # gets the network attributes
     @staticmethod
@@ -131,6 +133,25 @@ class NetMap(object):
         my_ip, gateway_ip, my_mac = wmi_out[index].IPAddress[0], wmi_out[index].DefaultIPGateway[0], wmi_out[index].MACAddress
         subnet_mask = wmi_out[index].IPSubnet[0]
         return my_ip, gateway_ip, my_mac, subnet_mask
+
+    @staticmethod
+    def can_ip_in_my_network(ip):
+        my_ip, gateway_ip, my_mac, subnet_mask = NetMap.__get_network_attributes()
+        mask_array = subnet_mask.split(".", 4)
+        ip_array = ip.split('.', 4)
+        gateway_array = gateway_ip.split('.', 4)
+        net_address1 = str(NetMap.__ip_and(gateway_array[0], mask_array[0])) + "."
+        net_address1 += str(NetMap.__ip_and(gateway_array[1], mask_array[1])) + "."
+        net_address1 += str(NetMap.__ip_and(gateway_array[2], mask_array[2])) + "."
+        net_address1 += str(NetMap.__ip_and(gateway_array[3], mask_array[3]))
+        net_address2 = str(NetMap.__ip_and(ip_array[0], mask_array[0])) + "."
+        net_address2 += str(NetMap.__ip_and(ip_array[1], mask_array[1])) + "."
+        net_address2 += str(NetMap.__ip_and(ip_array[2], mask_array[2])) + "."
+        net_address2 += str(NetMap.__ip_and(ip_array[3], mask_array[3]))
+        if net_address1 == net_address2:
+            return True
+        return False
+
 # endregion
 
 
@@ -143,11 +164,15 @@ def is_ip(ip):
 
 # Prints an up to date arp table
 def main():
+    '''
     print "scanning...\r\nIt will take a while."
     arp_table = NetMap.map()
     print "scan complete!"
     for computer in arp_table:
         print computer.mac + " " * 4 + computer.ip + " " * 4 + computer.computer_name
+        '''
+    print NetMap.can_ip_in_my_network("192.168.100.55")
+    print NetMap.can_ip_in_my_network("200.69.3.55")
 
 if __name__ == "__main__":
     main()

@@ -27,6 +27,7 @@ import subprocess
 from Cipher import Cipher
 from os.path import exists
 from os import makedirs
+import re
 # endregion
 
 # region ---------------------------- Server CLASS ----------------------------
@@ -270,11 +271,17 @@ class Server(object):
             else:
                 return result
 
-    def and_computer(self, computer):
+    def add_computer(self, computer):
         if isinstance(computer, Computer):
-            computer.active = False
-            self.__database.add_row(computer)
-            return "Computer successfully added."
+            if re.match(MAC_REGULAR_EXPRESSION, computer.mac):
+                if re.match(IP_REGULAR_EXPRESSION, computer.ip):
+                    if NetMap.can_ip_in_my_network(computer.ip):
+                        computer.active = False
+                        self.__database.add_row(computer)
+                        return "Computer successfully added."
+                    return "The IP address entered cannot exist in this network"
+                return "Invalid IP format"
+            return "Invalid MAC format"
 
     def download(self, computer, directory):
         client = self.__find_client(computer)
