@@ -249,15 +249,15 @@ class Client(object):
         sends back the result
         """
         to_send = self.__encrypt(data)
-        num_size = len(to_send) / BUFFER_SIZE + 1
-        if str(len(to_send)).startswith('9'):
-            num_size += 1
-        to_send = [to_send[i:i + BUFFER_SIZE - (num_size + 1)] for i in xrange(0, len(to_send), BUFFER_SIZE - (num_size + 1))]
+        # num_size = len(to_send) / BUFFER_SIZE + 1
+        # if str(len(to_send)).startswith('9'):
+        #     num_size += 1
+        to_send = [to_send[i:i + BUFFER_SIZE - (5)] for i in xrange(0, len(to_send), BUFFER_SIZE - (5))]
         self.__socket.send(str(len(to_send)))
         sleep(1)
         for i in xrange(len(to_send)):
             num = str(i)
-            num = "".join([str(j - j) for j in xrange(num_size - len(num))]) + num
+            num = "".join([str(j - j) for j in xrange(4 - len(num))]) + num
             self.__socket.send(num + "@" + to_send[i])
 
     def __update_processes(self):
