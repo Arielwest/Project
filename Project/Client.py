@@ -171,17 +171,19 @@ class Client(object):
         search_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         search_socket.settimeout(ANNOUNCE_SLEEP_TIME)
         search_socket.bind(("0.0.0.0", BROADCAST_PORT))
-        try:
-            message, address = search_socket.recvfrom(BUFFER_SIZE)
-        except:
-            return False
-        else:
+        while True:
+            found = False
+            while not found:
+                try:
+                    message, address = search_socket.recvfrom(BUFFER_SIZE)
+                except:
+                    continue
+                else:
+                    found = message == SERVER_ANNOUNCE_MESSAGE
             server_address = address[0]
-            if message == SERVER_ANNOUNCE_MESSAGE:
-                status = self.__socket.connect_ex((server_address, SERVER_PORT))
-                if status == 0:
-                    return self.__key_exchange()
-            return False
+            status = self.__socket.connect_ex((server_address, SERVER_PORT))
+            if status == 0:
+                return self.__key_exchange()
 
     def __key_exchange(self):
         server_public_key_data = self.__socket.recv(BUFFER_SIZE)
@@ -225,8 +227,9 @@ class Client(object):
                 data = ""
             if data == "":
                 self.__print("Lost connection with server.")
-                exit()
-            return self.__decrypt(data)
+                self.__find_server()
+            else:
+                return self.__decrypt(data)
         return ""
 
     def __encrypt(self, data):
