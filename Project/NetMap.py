@@ -17,7 +17,7 @@ from Constants import *
 import re
 import subprocess
 import wmi
-from scapy.all import *
+# from scapy.all import *
 from ClientInterface import Computer
 import struct
 from socket import inet_aton
@@ -34,7 +34,8 @@ class NetMap(object):
         Main mapping function
         """
         list1 = NetMap.__map_with_cmd()
-        list2 = NetMap.__map_with_scapy()
+        # list2 = NetMap.__map_with_scapy()
+        list2 = []
         result_list = NetMap.__combine_tables(list1, list2)
         return result_list
 
@@ -68,7 +69,7 @@ class NetMap(object):
                 computer = Computer(mac, ip)
                 result.append(computer)
         return result
-
+    '''
     # surveying the netwotk with scapy
     @staticmethod
     def __map_with_scapy():
@@ -88,7 +89,7 @@ class NetMap(object):
             computer = Computer(mac, ip)
             result.append(computer)
         return result
-
+        '''
     # return the Broadcast address for the current network
     @staticmethod
     def __get_final_gateway(gateway_ip, subnet_mask):
